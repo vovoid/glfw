@@ -390,6 +390,7 @@ extern "C" {
 #define GLFW_ICONIFIED            0x00020002
 #define GLFW_ACCELERATED          0x00020003
 #define GLFW_OPENGL_REVISION      0x00020004
+#define GLFW_WINDOW_MODE          0x00020005
 
 /* The following constants are used for both glfwGetWindowParam
  * and glfwOpenWindowHint
@@ -552,6 +553,7 @@ GLFWAPI void glfwRestoreWindow(GLFWwindow window);
 GLFWAPI int  glfwGetWindowParam(GLFWwindow window, int param);
 GLFWAPI void glfwSetWindowUserPointer(GLFWwindow window, void* pointer);
 GLFWAPI void* glfwGetWindowUserPointer(GLFWwindow window);
+GLFWAPI void glfwSetWindowMode(GLFWwindow window,int mode);
 GLFWAPI void glfwSetWindowSizeCallback(GLFWwindowsizefun cbfun);
 GLFWAPI void glfwSetWindowCloseCallback(GLFWwindowclosefun cbfun);
 GLFWAPI void glfwSetWindowRefreshCallback(GLFWwindowrefreshfun cbfun);

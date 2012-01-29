@@ -454,6 +454,34 @@ GLFWAPI void glfwOpenWindowHint(int target, int hint)
 
 
 //========================================================================
+// sets the WindowMode
+//========================================================================
+
+GLFWAPI void glfwSetWindowMode(GLFWwindow handle,int mode)
+{
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+    
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+    if (mode != GLFW_WINDOWED && mode != GLFW_FULLSCREEN)
+    {
+        _glfwSetError(GLFW_INVALID_ENUM,
+                      "glfwSetWindowMode: Invalid enum for 'mode' parameter");
+        return;
+    }
+    
+    if (window->mode == mode)
+    {
+        return;
+    }
+    
+    _glfwPlatformSetWindowMode(handle,mode);
+}
+
+//========================================================================
 // Properly kill the window / video display
 //========================================================================
 
@@ -728,6 +756,8 @@ GLFWAPI int glfwGetWindowParam(GLFWwindow handle, int param)
             return window->glProfile;
         case GLFW_OPENGL_ROBUSTNESS:
             return window->glRobustness;
+        case GLFW_WINDOW_MODE:
+            return window->mode;
     }
 
     _glfwSetError(GLFW_INVALID_ENUM, NULL);

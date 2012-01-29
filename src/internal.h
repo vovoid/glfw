@@ -283,6 +283,7 @@ void _glfwPlatformDisableSystemKeys(_GLFWwindow* window);
 // Fullscreen
 int  _glfwPlatformGetVideoModes(GLFWvidmode* list, int maxcount);
 void _glfwPlatformGetDesktopMode(GLFWvidmode* mode);
+void _glfwPlatformSetWindowMode(_GLFWwindow* window, int mode);
 
 // Gamma ramp
 void _glfwPlatformGetGammaRamp(GLFWgammaramp* ramp);

@@ -1025,6 +1025,14 @@ static void leaveFullscreenMode(_GLFWwindow* window)
 }
 
 
+void _glfwPlatformSetWindowMode(_GLFWwindow* window,int mode)
+{
+    if(mode == GLFW_FULLSCREEN)
+        enterFullscreenMode(window);
+    else
+        leaveFullscreenMode(window);
+}
+
 //========================================================================
 // Return the GLFW window corresponding to the specified X11 window
 //========================================================================
