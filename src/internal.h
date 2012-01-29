@@ -283,7 +283,6 @@ void _glfwPlatformDisableSystemKeys(_GLFWwindow* window);
 // Fullscreen
 int  _glfwPlatformGetVideoModes(GLFWvidmode* list, int maxcount);
 void _glfwPlatformGetDesktopMode(GLFWvidmode* mode);
-void _glfwPlatformSetWindowMode(_GLFWwindow* window, int mode);
 
 // Gamma ramp
 void _glfwPlatformGetGammaRamp(GLFWgammaramp* ramp);
@@ -301,6 +300,7 @@ void _glfwPlatformSetTime(double time);
 // Window management
 int  _glfwPlatformOpenWindow(_GLFWwindow* window, const _GLFWwndconfig* wndconfig, const _GLFWfbconfig* fbconfig);
 void _glfwPlatformCloseWindow(_GLFWwindow* window);
+void _glfwPlatformSetWindowMode(_GLFWwindow* window, int mode);
 void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char* title);
 void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height);
 void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y);
