@@ -543,6 +543,7 @@ GLFWAPI GLFWwindow glfwOpenWindow(int width, int height, int mode, const char* t
 GLFWAPI void glfwOpenWindowHint(int target, int hint);
 GLFWAPI int  glfwIsWindow(GLFWwindow window);
 GLFWAPI void glfwCloseWindow(GLFWwindow window);
+GLFWAPI void glfwSetWindowMode(GLFWwindow window,int mode);
 GLFWAPI void glfwSetWindowTitle(GLFWwindow, const char* title);
 GLFWAPI void glfwGetWindowSize(GLFWwindow, int* width, int* height);
 GLFWAPI void glfwSetWindowSize(GLFWwindow, int width, int height);
@@ -553,7 +554,6 @@ GLFWAPI void glfwRestoreWindow(GLFWwindow window);
 GLFWAPI int  glfwGetWindowParam(GLFWwindow window, int param);
 GLFWAPI void glfwSetWindowUserPointer(GLFWwindow window, void* pointer);
 GLFWAPI void* glfwGetWindowUserPointer(GLFWwindow window);
-GLFWAPI void glfwSetWindowMode(GLFWwindow window,int mode);
 GLFWAPI void glfwSetWindowSizeCallback(GLFWwindowsizefun cbfun);
 GLFWAPI void glfwSetWindowCloseCallback(GLFWwindowclosefun cbfun);
 GLFWAPI void glfwSetWindowRefreshCallback(GLFWwindowrefreshfun cbfun);
