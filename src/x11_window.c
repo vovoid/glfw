@@ -1503,13 +1503,18 @@ void _glfwPlatformCloseWindow(_GLFWwindow* window)
 }
 
 
-void _glfwPlatformSetWindowMode(_GLFWwindow* window,int mode)
+//========================================================================
+// Set the window mode
+//========================================================================
+
+void _glfwPlatformSetWindowMode(_GLFWwindow* window, int mode)
 {
-    if(mode == GLFW_FULLSCREEN)
+    if (mode == GLFW_FULLSCREEN)
         enterFullscreenMode(window);
     else
         leaveFullscreenMode(window);
 }
+
 
 //========================================================================
 // Set the window title
