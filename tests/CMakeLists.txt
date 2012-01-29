@@ -21,6 +21,9 @@ target_link_libraries(fsaa ${STATIC_DEPS})
 add_executable(fsfocus fsfocus.c)
 target_link_libraries(fsfocus ${STATIC_DEPS})
 
+add_executable(fsmode fsmode.c)
+target_link_libraries(fsmode ${STATIC_DEPS})
+
 add_executable(gamma gamma.c getopt.c)
 target_link_libraries(gamma ${STATIC_DEPS})
 
@@ -54,7 +57,7 @@ target_link_libraries(tearing ${STATIC_DEPS})
 add_executable(windows WIN32 MACOSX_BUNDLE windows.c)
 target_link_libraries(windows ${STATIC_DEPS})
 
-set(WINDOWS_BINARIES accuracy sharing tearing windows)
+set(WINDOWS_BINARIES accuracy fsmode sharing tearing windows)
 set(CONSOLE_BINARIES defaults events fsaa fsfocus gamma glfwinfo iconify
                      joysticks listmodes peter reopen)
 
