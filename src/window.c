@@ -522,6 +522,8 @@ GLFWAPI void glfwSetWindowMode(GLFWwindow handle, int mode)
     }
 
     _glfwPlatformSetWindowMode(handle, mode);
+
+    window->mode = mode;
 }
 
 
