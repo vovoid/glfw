@@ -496,31 +496,32 @@ GLFWAPI void glfwCloseWindow(GLFWwindow handle)
 
 
 //========================================================================
-// sets the WindowMode
+// Set the window mode
 //========================================================================
 
-GLFWAPI void glfwSetWindowMode(GLFWwindow handle,int mode)
+GLFWAPI void glfwSetWindowMode(GLFWwindow handle, int mode)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
-    
+
     if (!_glfwInitialized)
     {
         _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
         return;
     }
+
     if (mode != GLFW_WINDOWED && mode != GLFW_FULLSCREEN)
     {
         _glfwSetError(GLFW_INVALID_ENUM,
                       "glfwSetWindowMode: Invalid enum for 'mode' parameter");
         return;
     }
-    
+
     if (window->mode == mode)
     {
         return;
     }
-    
-    _glfwPlatformSetWindowMode(handle,mode);
+
+    _glfwPlatformSetWindowMode(handle, mode);
 }
 
 
