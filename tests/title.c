@@ -1,5 +1,5 @@
 //========================================================================
-// Fullscreen window (un)focus test
+// UTF-8 window title test
 // Copyright (c) Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,8 +23,7 @@
 //
 //========================================================================
 //
-// This test is used to test window activation and iconfication for
-// fullscreen windows with a video mode differing from the desktop mode
+// This test sets a UTF-8 window title
 //
 //========================================================================
 
@@ -33,42 +32,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static GLboolean running = GL_TRUE;
-
-static void window_focus_callback(GLFWwindow window, int activated)
+static void window_size_callback(GLFWwindow window, int width, int height)
 {
-    printf("%0.3f: Window %s\n",
-           glfwGetTime(),
-           activated ? "activated" : "deactivated");
-}
-
-static void window_key_callback(GLFWwindow window, int key, int action)
-{
-    if (action != GLFW_PRESS)
-        return;
-
-    switch (key)
-    {
-        case GLFW_KEY_ESCAPE:
-        {
-            printf("%0.3f: User pressed Escape\n", glfwGetTime());
-            running = GL_FALSE;
-            break;
-        }
-
-        case GLFW_KEY_SPACE:
-        {
-            printf("%0.3f: User pressed Space\n", glfwGetTime());
-            glfwIconifyWindow(window);
-            break;
-        }
-    }
-}
-
-static int window_close_callback(GLFWwindow window)
-{
-    printf("%0.3f: User closed window\n", glfwGetTime());
-    return GL_TRUE;
+    glViewport(0, 0, width, height);
 }
 
 int main(void)
@@ -81,30 +47,24 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-    window = glfwOpenWindow(640, 480, GLFW_FULLSCREEN, "Fullscreen focus", NULL);
+    window = glfwOpenWindow(0, 0, GLFW_WINDOWED, "English 日本語 русский язык 官話", NULL);
     if (!window)
     {
-        glfwTerminate();
-
         fprintf(stderr, "Failed to open GLFW window: %s\n", glfwErrorString(glfwGetError()));
         exit(EXIT_FAILURE);
     }
 
     glfwSwapInterval(1);
-    glfwSetInputMode(window, GLFW_CURSOR_MODE, GLFW_CURSOR_NORMAL);
 
-    glfwSetWindowFocusCallback(window_focus_callback);
-    glfwSetKeyCallback(window_key_callback);
-    glfwSetWindowCloseCallback(window_close_callback);
+    glfwSetWindowSizeCallback(window_size_callback);
 
-    while (running && glfwIsWindow(window) == GL_TRUE)
+    while (glfwIsWindow(window) == GL_TRUE)
     {
         glClear(GL_COLOR_BUFFER_BIT);
         glfwSwapBuffers();
         glfwWaitEvents();
     }
 
-    glfwTerminate();
     exit(EXIT_SUCCESS);
 }
 
