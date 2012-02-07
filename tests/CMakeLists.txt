@@ -21,7 +21,7 @@ target_link_libraries(fsaa ${STATIC_DEPS})
 add_executable(fsfocus fsfocus.c)
 target_link_libraries(fsfocus ${STATIC_DEPS})
 
-add_executable(fsmode fsmode.c)
+add_executable(fsmode WIN32 MACOSX_BUNDLE fsmode.c)
 target_link_libraries(fsmode ${STATIC_DEPS})
 
 add_executable(gamma gamma.c getopt.c)
