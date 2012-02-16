@@ -687,7 +687,6 @@ GLFWAPI void glfwRestoreWindow(GLFWwindow handle)
     if (!window->iconified)
         return;
 
-    // Restore iconified window
     _glfwPlatformRestoreWindow(window);
 
     if (window->mode == GLFW_FULLSCREEN)
