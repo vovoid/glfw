@@ -298,7 +298,7 @@ void _glfwPlatformSetTime(double time);
 // Window management
 int  _glfwPlatformOpenWindow(_GLFWwindow* window, const _GLFWwndconfig* wndconfig, const _GLFWfbconfig* fbconfig);
 void _glfwPlatformCloseWindow(_GLFWwindow* window);
-void _glfwPlatformSetWindowMode(_GLFWwindow* window, int mode);
+void _glfwPlatformSetWindowMode(_GLFWwindow* window, int width, int height, int mode);
 void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char* title);
 void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height);
 void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y);

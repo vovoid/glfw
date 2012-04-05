@@ -982,6 +982,15 @@ void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char *title)
 
 
 //========================================================================
+// Set the window mode
+//========================================================================
+
+void _glfwPlatformSetWindowMode(_GLFWwindow* window, int width, int height, int mode)
+{
+}
+
+
+//========================================================================
 // Set the window size
 //========================================================================
 

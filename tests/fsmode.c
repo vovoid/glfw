@@ -51,7 +51,7 @@ static void key_callback(GLFWwindow window, int key, int action)
         else
             window_mode = GLFW_FULLSCREEN;
 
-        glfwSetWindowMode(window, window_mode);
+        glfwSetWindowMode(window, 800, 600, window_mode);
     }
 }
 

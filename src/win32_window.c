@@ -1574,7 +1574,7 @@ void _glfwPlatformCloseWindow(_GLFWwindow* window)
 // Set the window mode
 //========================================================================
 
-void _glfwPlatformSetWindowMode(_GLFWwindow* window, int mode)
+void _glfwPlatformSetWindowMode(_GLFWwindow* window, int width, int height, int mode)
 {
 }
 

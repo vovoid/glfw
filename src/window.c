@@ -500,7 +500,7 @@ GLFWAPI void glfwCloseWindow(GLFWwindow handle)
 // Set the window mode
 //========================================================================
 
-GLFWAPI void glfwSetWindowMode(GLFWwindow handle, int mode)
+GLFWAPI void glfwSetWindowMode(GLFWwindow handle, int width, int height, int mode)
 {
     _GLFWwindow* window = (_GLFWwindow*) handle;
 
@@ -522,7 +522,7 @@ GLFWAPI void glfwSetWindowMode(GLFWwindow handle, int mode)
         return;
     }
 
-    _glfwPlatformSetWindowMode(handle, mode);
+    _glfwPlatformSetWindowMode(handle, width, height, mode);
 
     window->mode = mode;
 }

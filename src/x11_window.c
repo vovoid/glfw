@@ -890,7 +890,7 @@ static void showMouseCursor(_GLFWwindow* window)
 // Enter fullscreen mode
 //========================================================================
 
-static void enterFullscreenMode(_GLFWwindow* window)
+static void enterFullscreenMode(_GLFWwindow* window, int width, int height)
 {
     if (!_glfwLibrary.X11.saver.changed)
     {
@@ -987,7 +987,7 @@ static void enterFullscreenMode(_GLFWwindow* window)
 // Leave fullscreen mode
 //========================================================================
 
-static void leaveFullscreenMode(_GLFWwindow* window)
+static void leaveFullscreenMode(_GLFWwindow* window, int width, int height)
 {
     _glfwRestoreVideoMode(_glfwLibrary.X11.screen);
 
@@ -1548,12 +1548,12 @@ void _glfwPlatformCloseWindow(_GLFWwindow* window)
 // Set the window mode
 //========================================================================
 
-void _glfwPlatformSetWindowMode(_GLFWwindow* window, int mode)
+void _glfwPlatformSetWindowMode(_GLFWwindow* window, int width, int height, int mode)
 {
     if (mode == GLFW_FULLSCREEN)
-        enterFullscreenMode(window);
+        enterFullscreenMode(window, width, height);
     else
-        leaveFullscreenMode(window);
+        leaveFullscreenMode(window, width, height);
 }
 
 
