@@ -1323,7 +1323,7 @@ int _glfwPlatformOpenWindow(_GLFWwindow* window,
         }
 #endif /*_GLFW_HAS_XRANDR*/
 
-        enterFullscreenMode(window);
+        enterFullscreenMode(window, window->width, window->height);
     }
 
     // Process the window map event and any other that may have arrived
@@ -1360,7 +1360,7 @@ int _glfwPlatformOpenWindow(_GLFWwindow* window,
 void _glfwPlatformCloseWindow(_GLFWwindow* window)
 {
     if (window->mode == GLFW_FULLSCREEN)
-        leaveFullscreenMode(window);
+        leaveFullscreenMode(window, window->width, window->height);
 
     if (window->GLX.context)
     {
