@@ -685,7 +685,8 @@ static GLboolean createWindow(_GLFWwindow* window,
         wa.border_pixel = 0;
         wa.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask |
             PointerMotionMask | ButtonPressMask | ButtonReleaseMask |
-            ExposureMask | FocusChangeMask | VisibilityChangeMask;
+            ExposureMask | FocusChangeMask | VisibilityChangeMask |
+            EnterWindowMask | LeaveWindowMask;
 
         if (wndconfig->mode == GLFW_WINDOWED)
         {
@@ -1143,14 +1144,14 @@ static void processSingleEvent(void)
             // XFree86 3.3.2 and later translates mouse wheel up/down into
             // mouse button 4 & 5 presses
             else if (event.xbutton.button == Button4)
-                _glfwInputScroll(window, 0, 1);
+                _glfwInputScroll(window, 0.0, 1.0);
             else if (event.xbutton.button == Button5)
-                _glfwInputScroll(window, 0, -1);
+                _glfwInputScroll(window, 0.0, -1.0);
 
             else if (event.xbutton.button == Button6)
-                _glfwInputScroll(window, -1, 0);
+                _glfwInputScroll(window, -1.0, 0.0);
             else if (event.xbutton.button == Button7)
-                _glfwInputScroll(window, 1, 0);
+                _glfwInputScroll(window, 1.0, 0.0);
 
             break;
         }
@@ -1183,6 +1184,40 @@ static void processSingleEvent(void)
                                      GLFW_MOUSE_BUTTON_RIGHT,
                                      GLFW_RELEASE);
             }
+            break;
+        }
+
+        case EnterNotify:
+        {
+            // The mouse cursor enters the Window
+            window = findWindow(event.xcrossing.window);
+            if (window == NULL)
+            {
+                fprintf(stderr, "Cannot find GLFW window structure for EnterNotify event\n");
+                return;
+            }
+
+            if (window->cursorMode == GLFW_CURSOR_HIDDEN)
+                hideMouseCursor(window);
+
+            _glfwInputCursorEnter(window, GL_TRUE);
+            break;
+        }
+
+        case LeaveNotify:
+        {
+            // The mouse cursor leave the Window
+            window = findWindow(event.xcrossing.window);
+            if (window == NULL)
+            {
+                fprintf(stderr, "Cannot find GLFW window structure for LeaveNotify event\n");
+                return;
+            }
+
+            if (window->cursorMode == GLFW_CURSOR_HIDDEN)
+                showMouseCursor(window);
+
+            _glfwInputCursorEnter(window, GL_FALSE);
             break;
         }
 
