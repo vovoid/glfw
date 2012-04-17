@@ -1065,7 +1065,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
         case WM_TOUCH:
         {
             TOUCHINPUT* inputs;
-            UINT count = LOWORD(wParam);
+            UINT i, count = LOWORD(wParam);
 
             inputs = (TOUCHINPUT*) malloc(sizeof(TOUCHINPUT) * count);
             if (!inputs)
@@ -1074,11 +1074,9 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 return 0;
             }
 
-            if (GetTouchInputInfo((HTOUCHINPUT) lParam,
-                                  count, inputs, sizeof(TOUCHINPUT)))
+            if (_glfw_GetTouchInputInfo((HTOUCHINPUT) lParam,
+                                        count, inputs, sizeof(TOUCHINPUT)))
             {
-                int i;
-
                 for (i = 0;  i < count;  i++)
                 {
                     POINT pos;
@@ -1107,7 +1105,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                     }
                 }
 
-                CloseTouchInputHandle((HTOUCHINPUT) lParam);
+                _glfw_CloseTouchInputHandle((HTOUCHINPUT) lParam);
             }
 
             free(inputs);

@@ -77,6 +77,39 @@
  #define WM_MOUSEHWHEEL 0x020E
 #endif
 
+#if WINVER < 0x0601
+
+#define WM_TOUCH 0x0240
+
+DECLARE_HANDLE(HTOUCHINPUT);
+
+typedef struct tagTOUCHINPUT
+{
+    LONG x;
+    LONG y;
+    HANDLE hSource;
+    DWORD dwID;
+    DWORD dwFlags;
+    DWORD dwMask;
+    DWORD dwTime;
+    ULONG_PTR dwExtraInfo;
+    DWORD cxContact;
+    DWORD cyContext;
+} TOUCHINPUT, *PTOUCHINPUT;
+
+#define TOUCH_COORD_TO_PIXEL(x) ((x) / 100)
+
+#define TOUCHEVENTF_MOVE    0x0001
+#define TOUCHEVENTF_DOWN    0x0002
+#define TOUCHEVENTF_UP      0x0004
+
+typedef WINUSERAPI BOOL (WINAPI * GETTOUCHINPUTINFO_T)(HTOUCHINPUT,UINT,PTOUCHINPUT,int);
+typedef WINUSERAPI BOOL (WINAPI * CLOSETOUCHINPUTHANDLE_T)(HTOUCHINPUT);
+typedef WINUSERAPI BOOL (WINAPI * REGISTERTOUCHWINDOW_T)(HWND,LONG);
+typedef WINUSERAPI BOOL (WINAPI * UNREGISTERTOUCHWINDOW_T)(HWND);
+
+#endif /*WINVER < 0x0601*/
+
 
 //========================================================================
 // DLLs that are loaded at glfwInit()
@@ -102,6 +135,20 @@ typedef DWORD (WINAPI * TIMEGETTIME_T) (void);
  #define _glfw_joyGetPos     joyGetPos
  #define _glfw_joyGetPosEx   joyGetPosEx
  #define _glfw_timeGetTime   timeGetTime
+#endif // _GLFW_NO_DLOAD_WINMM
+
+
+// user32.dll touch API shortcuts
+#ifndef _GLFW_NO_DLOAD_TOUCH
+ #define _glfw_GetTouchInputInfo     _glfwLibrary.Win32.touch.GetTouchInputInfo
+ #define _glfw_CloseTouchInputHandle _glfwLibrary.Win32.touch.CloseTouchInputHandle
+ #define _glfw_RegisterTouchWindow   _glfwLibrary.Win32.touch.RegisterTouchWindow
+ #define _glfw_UnregisterTouchWindow _glfwLibrary.Win32.touch.UnregisterTouchWindow
+#else
+ #define _glfw_GetTouchInputInfo     GetTouchInputInfo
+ #define _glfw_CloseTouchInputHandle CloseTouchInputHandle
+ #define _glfw_RegisterTouchWindow   RegisterTouchWindow
+ #define _glfw_UnregisterTouchWindow UnregisterTouchWindow
 #endif // _GLFW_NO_DLOAD_WINMM
 
 
@@ -206,6 +253,17 @@ typedef struct _GLFWlibraryWin32
         TIMEGETTIME_T         timeGetTime;
     } winmm;
 #endif // _GLFW_NO_DLOAD_WINMM
+
+#ifndef _GLFW_NO_DLOAD_TOUCH
+    // user32.dll
+    struct {
+        HINSTANCE               instance;
+        GETTOUCHINPUTINFO_T     GetTouchInputInfo;
+        CLOSETOUCHINPUTHANDLE_T CloseTouchInputHandle;
+        REGISTERTOUCHWINDOW_T   RegisterTouchWindow;
+        UNREGISTERTOUCHWINDOW_T UnregisterTouchWindow;
+    } touch;
+#endif // _GLFW_NO_DLOAD_TOUCH
 
 } _GLFWlibraryWin32;
 
