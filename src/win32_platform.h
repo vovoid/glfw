@@ -258,6 +258,7 @@ typedef struct _GLFWlibraryWin32
     // user32.dll
     struct {
         HINSTANCE               instance;
+        GLboolean               available;
         GETTOUCHINPUTINFO_T     GetTouchInputInfo;
         CLOSETOUCHINPUTHANDLE_T CloseTouchInputHandle;
         REGISTERTOUCHWINDOW_T   RegisterTouchWindow;

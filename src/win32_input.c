@@ -133,6 +133,9 @@ void _glfwPlatformDisableSystemKeys(_GLFWwindow* window)
 
 void _glfwPlatformSetTouchInput(_GLFWwindow* window, int enabled)
 {
+    if (!_glfwLibrary.Win32.touch.available)
+        return;
+
     if (enabled)
         _glfw_RegisterTouchWindow(window->Win32.handle, 0);
     else
