@@ -147,6 +147,21 @@ static void setKeyRepeat(_GLFWwindow* window, int enabled)
 }
 
 
+//========================================================================
+// Set touch input for the specified window
+//========================================================================
+
+static void setTouchInput(_GLFWwindow* window, int enabled)
+{
+    if (window->touchInput == enabled)
+        return;
+
+    _glfwPlatformSetTouchInput(window, enabled);
+
+    window->touchInput = enabled;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
@@ -273,6 +288,28 @@ void _glfwInputCursorEnter(_GLFWwindow* window, int entered)
 }
 
 
+//========================================================================
+// Register touch creation/deletion events
+//========================================================================
+
+void _glfwInputTouch(_GLFWwindow* window, int touch, int action)
+{
+    if (_glfwLibrary.touchCallback)
+        _glfwLibrary.touchCallback(window, touch, action);
+}
+
+
+//========================================================================
+// Register touch motion events
+//========================================================================
+
+void _glfwInputTouchPos(_GLFWwindow* window, int touch, double x, double y)
+{
+    if (_glfwLibrary.touchPosCallback)
+        _glfwLibrary.touchPosCallback(window, touch, x, y);
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 //////                        GLFW public API                       //////
 //////////////////////////////////////////////////////////////////////////
@@ -303,6 +340,8 @@ GLFWAPI int glfwGetInputMode(GLFWwindow handle, int mode)
             return window->systemKeys;
         case GLFW_KEY_REPEAT:
             return window->keyRepeat;
+        case GLFW_TOUCH:
+            return window->touchInput;
         default:
             _glfwSetError(GLFW_INVALID_ENUM, NULL);
             return 0;
@@ -341,6 +380,8 @@ GLFWAPI void glfwSetInputMode(GLFWwindow handle, int mode, int value)
         case GLFW_KEY_REPEAT:
             setKeyRepeat(window, value ? GL_TRUE : GL_FALSE);
             break;
+        case GLFW_TOUCH:
+            setTouchInput(window, value ? GL_TRUE : GL_FALSE);
         default:
             _glfwSetError(GLFW_INVALID_ENUM, NULL);
             break;
@@ -597,5 +638,37 @@ GLFWAPI void glfwSetScrollCallback(GLFWscrollfun cbfun)
     }
 
     _glfwLibrary.scrollCallback = cbfun;
+}
+
+
+//========================================================================
+// Set callback function for touch creation/deletion events
+//========================================================================
+
+GLFWAPI void glfwSetTouchCallback(GLFWtouchfun cbfun)
+{
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+
+    _glfwLibrary.touchCallback = cbfun;
+}
+
+
+//========================================================================
+// Set callback function for touch motion events
+//========================================================================
+
+GLFWAPI void glfwSetTouchPosCallback(GLFWtouchposfun cbfun)
+{
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+
+    _glfwLibrary.touchPosCallback = cbfun;
 }
 

@@ -184,6 +184,7 @@ struct _GLFWwindow
     GLboolean stickyMouseButtons;
     GLboolean keyRepeat;
     GLboolean systemKeys;      // system keys enabled flag
+    GLboolean touchInput;      // GL_TRUE if this window receives touches
     int       cursorPosX, cursorPosY;
     int       cursorMode;
     double    scrollX, scrollY;
@@ -241,6 +242,8 @@ struct _GLFWlibrary
     GLFWscrollfun        scrollCallback;
     GLFWkeyfun           keyCallback;
     GLFWcharfun          charCallback;
+    GLFWtouchfun         touchCallback;
+    GLFWtouchposfun      touchPosCallback;
 
     GLFWgammaramp currentRamp;
     GLFWgammaramp originalRamp;
@@ -277,6 +280,7 @@ const char* _glfwPlatformGetVersionString(void);
 // Input
 void _glfwPlatformEnableSystemKeys(_GLFWwindow* window);
 void _glfwPlatformDisableSystemKeys(_GLFWwindow* window);
+void _glfwPlatformSetTouchInput(_GLFWwindow* window, int enabled);
 void _glfwPlatformSetMouseCursorPos(_GLFWwindow* window, int x, int y);
 void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode);
 
@@ -351,6 +355,8 @@ void _glfwInputScroll(_GLFWwindow* window, double x, double y);
 void _glfwInputMouseClick(_GLFWwindow* window, int button, int action);
 void _glfwInputCursorMotion(_GLFWwindow* window, int x, int y);
 void _glfwInputCursorEnter(_GLFWwindow* window, int entered);
+void _glfwInputTouch(_GLFWwindow* window, int touch, int action);
+void _glfwInputTouchPos(_GLFWwindow* window, int touch, double x, double y);
 
 // OpenGL context helpers (opengl.c)
 int _glfwStringInExtensionString(const char* string, const GLubyte* extensions);

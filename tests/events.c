@@ -341,6 +341,24 @@ static void char_callback(GLFWwindow window, int character)
            get_character_string(character));
 }
 
+static void touch_callback(GLFWwindow window, int touch, int action)
+{
+    printf("%08x at %0.3f: Touch %i %s\n",
+           counter++,
+           glfwGetTime(),
+           touch,
+           get_action_name(action));
+}
+
+static void touch_pos_callback(GLFWwindow window, int touch, double x, double y)
+{
+    printf("%08x at %0.3f: Touch %i position: %f %f\n",
+           counter++,
+           glfwGetTime(),
+           touch,
+           x, y);
+}
+
 int main(void)
 {
     GLFWwindow window;
@@ -366,6 +384,8 @@ int main(void)
     glfwSetScrollCallback(scroll_callback);
     glfwSetKeyCallback(key_callback);
     glfwSetCharCallback(char_callback);
+    glfwSetTouchCallback(touch_callback);
+    glfwSetTouchPosCallback(touch_pos_callback);
 
     window = glfwOpenWindow(0, 0, GLFW_WINDOWED, "Event Linter", NULL);
     if (!window)

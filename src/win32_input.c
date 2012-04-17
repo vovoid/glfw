@@ -126,3 +126,16 @@ void _glfwPlatformDisableSystemKeys(_GLFWwindow* window)
                                                        0);
 }
 
+
+//========================================================================
+// Set whether touch input is enabled for the specified window
+//========================================================================
+
+void _glfwPlatformSetTouchInput(_GLFWwindow* window, int enabled)
+{
+    if (enabled)
+        RegisterTouchWindow(window->Win32.handle, 0);
+    else
+        UnregisterTouchWindow(window->Win32.handle);
+}
+

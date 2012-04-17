@@ -439,6 +439,7 @@ extern "C" {
 #define GLFW_STICKY_MOUSE_BUTTONS 0x00030003
 #define GLFW_SYSTEM_KEYS          0x00030004
 #define GLFW_KEY_REPEAT           0x00030005
+#define GLFW_TOUCH                0x00030006
 
 /* GLFW_CURSOR_MODE values */
 #define GLFW_CURSOR_NORMAL       0x00040001
@@ -486,6 +487,8 @@ typedef void (* GLFWcursorenterfun)(GLFWwindow,int);
 typedef void (* GLFWscrollfun)(GLFWwindow,double,double);
 typedef void (* GLFWkeyfun)(GLFWwindow,int,int);
 typedef void (* GLFWcharfun)(GLFWwindow,int);
+typedef void (* GLFWtouchfun)(GLFWwindow,int,int);
+typedef void (* GLFWtouchposfun)(GLFWwindow,int,double,double);
 
 /* The video mode structure used by glfwGetVideoModes */
 typedef struct
@@ -569,6 +572,8 @@ GLFWAPI void glfwSetMouseButtonCallback(GLFWmousebuttonfun cbfun);
 GLFWAPI void glfwSetMousePosCallback(GLFWmouseposfun cbfun);
 GLFWAPI void glfwSetCursorEnterCallback(GLFWcursorenterfun cbfun);
 GLFWAPI void glfwSetScrollCallback(GLFWscrollfun cbfun);
+GLFWAPI void glfwSetTouchCallback(GLFWtouchfun cbfun);
+GLFWAPI void glfwSetTouchPosCallback(GLFWtouchposfun cbfun);
 
 /* Joystick input */
 GLFWAPI int glfwGetJoystickParam(int joy, int param);

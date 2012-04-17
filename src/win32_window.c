@@ -1062,6 +1062,58 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
             return 0;
         }
 
+        case WM_TOUCH:
+        {
+            TOUCHINPUT* inputs;
+            UINT count = LOWORD(wParam);
+
+            inputs = (TOUCHINPUT*) malloc(sizeof(TOUCHINPUT) * count);
+            if (!inputs)
+            {
+                _glfwSetError(GLFW_OUT_OF_MEMORY, NULL);
+                return 0;
+            }
+
+            if (GetTouchInputInfo((HTOUCHINPUT) lParam,
+                                  count, inputs, sizeof(TOUCHINPUT)))
+            {
+                int i;
+
+                for (i = 0;  i < count;  i++)
+                {
+                    POINT pos;
+
+                    // Discard any points that lie outside of the client area
+
+                    pos.x = TOUCH_COORD_TO_PIXEL(inputs[i].x);
+                    pos.y = TOUCH_COORD_TO_PIXEL(inputs[i].y);
+                    ScreenToClient(window->Win32.handle, &pos);
+
+                    if (pos.x < 0 || pos.x >= window->width ||
+                        pos.y < 0 || pos.y >= window->height)
+                    {
+                        continue;
+                    }
+
+                    if (inputs[i].dwFlags & TOUCHEVENTF_DOWN)
+                        _glfwInputTouch(window, (int) inputs[i].dwID, GLFW_PRESS);
+                    else if (inputs[i].dwFlags & TOUCHEVENTF_UP)
+                        _glfwInputTouch(window, (int) inputs[i].dwID, GLFW_RELEASE);
+                    else if (inputs[i].dwFlags & TOUCHEVENTF_MOVE)
+                    {
+                        _glfwInputTouchPos(window, (int) inputs[i].dwID,
+                                           inputs[i].x / 100.0,
+                                           inputs[i].y / 100.0);
+                    }
+                }
+
+                CloseTouchInputHandle((HTOUCHINPUT) lParam);
+            }
+
+            free(inputs);
+            break;
+        }
+
         // Was the window contents damaged?
         case WM_PAINT:
         {
