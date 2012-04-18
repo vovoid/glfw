@@ -42,6 +42,7 @@
 
 static GLboolean keyrepeat  = GL_FALSE;
 static GLboolean systemkeys = GL_TRUE;
+static GLboolean touchinput = GL_FALSE;
 static GLboolean closeable = GL_TRUE;
 static unsigned int counter = 0;
 
@@ -322,6 +323,15 @@ static void key_callback(GLFWwindow window, int key, int action)
             break;
         }
 
+        case GLFW_KEY_T:
+        {
+            touchinput = !touchinput;
+            glfwSetInputMode(window, GLFW_TOUCH, touchinput);
+
+            printf("(( touch input %s ))\n", touchinput ? "enabled" : "disabled");
+            break;
+        }
+
         case GLFW_KEY_C:
         {
             closeable = !closeable;
@@ -402,6 +412,7 @@ int main(void)
 
     printf("Key repeat should be %s\n", keyrepeat ? "enabled" : "disabled");
     printf("System keys should be %s\n", systemkeys ? "enabled" : "disabled");
+    printf("System keys should be %s\n", touchinput ? "enabled" : "disabled");
 
     printf("Main loop starting\n");
 
