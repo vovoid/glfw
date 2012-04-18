@@ -184,7 +184,7 @@ struct _GLFWwindow
     GLboolean stickyMouseButtons;
     GLboolean keyRepeat;
     GLboolean systemKeys;      // system keys enabled flag
-    GLboolean touchInput;      // GL_TRUE if this window receives touches
+    GLboolean touchInput;      // GL_TRUE if this window receives touch input
     int       cursorPosX, cursorPosY;
     int       cursorMode;
     double    scrollX, scrollY;
