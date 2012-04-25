@@ -1082,16 +1082,15 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
             {
                 for (i = 0;  i < count;  i++)
                 {
-                    POINT pos;
+                    int x, y;
 
                     // Discard any points that lie outside of the client area
 
-                    pos.x = TOUCH_COORD_TO_PIXEL(inputs[i].x);
-                    pos.y = TOUCH_COORD_TO_PIXEL(inputs[i].y);
-                    ScreenToClient(window->Win32.handle, &pos);
+                    x = TOUCH_COORD_TO_PIXEL(inputs[i].x) - window->positionX;
+                    y = TOUCH_COORD_TO_PIXEL(inputs[i].y) - window->positionY;
 
-                    if (pos.x < 0 || pos.x >= window->width ||
-                        pos.y < 0 || pos.y >= window->height)
+                    if (x < 0 || x >= window->width ||
+                        y < 0 || y >= window->height)
                     {
                         continue;
                     }
@@ -1103,8 +1102,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                     else if (inputs[i].dwFlags & TOUCHEVENTF_MOVE)
                     {
                         _glfwInputTouchPos(window, (int) inputs[i].dwID,
-                                           inputs[i].x / 100.0,
-                                           inputs[i].y / 100.0);
+                                           inputs[i].x / 100.0 - window->positionX,
+                                           inputs[i].y / 100.0 - window->positionY);
                     }
                 }
 
