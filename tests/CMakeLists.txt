@@ -3,7 +3,7 @@ link_libraries(glfw ${OPENGL_glu_LIBRARY})
 
 if (BUILD_SHARED_LIBS)
     add_definitions(-DGLFW_DLL)
-    link_libraries(${OPENGL_gl_LIBRARY})
+    link_libraries(${OPENGL_gl_LIBRARY} ${MATH_LIBRARY})
 else()
     link_libraries(${glfw_LIBRARIES})
 endif()
@@ -12,6 +12,7 @@ include_directories(${GLFW_SOURCE_DIR}/include
                     ${GLFW_SOURCE_DIR}/support
                     ${OPENGL_INCLUDE_DIR})
 
+add_executable(clipboard clipboard.c getopt.c)
 add_executable(defaults defaults.c)
 add_executable(events events.c)
 add_executable(fsaa fsaa.c getopt.c)
@@ -20,7 +21,6 @@ add_executable(gamma gamma.c getopt.c)
 add_executable(glfwinfo glfwinfo.c getopt.c)
 add_executable(iconify iconify.c getopt.c)
 add_executable(joysticks joysticks.c)
-add_executable(listmodes listmodes.c)
 add_executable(modes modes.c getopt.c)
 add_executable(peter peter.c)
 add_executable(reopen reopen.c)
@@ -44,8 +44,8 @@ add_executable(windows WIN32 MACOSX_BUNDLE windows.c)
 set_target_properties(windows PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Windows")
 
 set(WINDOWS_BINARIES accuracy fsmode sharing tearing title windows)
-set(CONSOLE_BINARIES defaults events fsaa fsfocus gamma glfwinfo iconify
-                     joysticks listmodes modes peter reopen)
+set(CONSOLE_BINARIES clipboard defaults events fsaa fsfocus gamma glfwinfo
+                     iconify joysticks modes peter reopen)
 
 if (MSVC)
     # Tell MSVC to use main instead of WinMain for Windows subsystem executables

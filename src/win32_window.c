@@ -149,38 +149,44 @@ static int getPixelFormatAttrib(_GLFWwindow* window, int pixelFormat, int attrib
 
 static _GLFWfbconfig* getFBConfigs(_GLFWwindow* window, unsigned int* found)
 {
-    _GLFWfbconfig* result;
+    _GLFWfbconfig* fbconfigs;
     PIXELFORMATDESCRIPTOR pfd;
-    int i, count;
+    int i, available;
 
     *found = 0;
 
     if (window->WGL.ARB_pixel_format)
-        count = getPixelFormatAttrib(window, 1, WGL_NUMBER_PIXEL_FORMATS_ARB);
+    {
+        available = getPixelFormatAttrib(window,
+                                         1,
+                                         WGL_NUMBER_PIXEL_FORMATS_ARB);
+    }
     else
     {
-        count = DescribePixelFormat(window->WGL.DC,
-                                    1,
-                                    sizeof(PIXELFORMATDESCRIPTOR),
-                                    NULL);
+        available = DescribePixelFormat(window->WGL.DC,
+                                        1,
+                                        sizeof(PIXELFORMATDESCRIPTOR),
+                                        NULL);
     }
 
-    if (!count)
+    if (!available)
     {
         _glfwSetError(GLFW_OPENGL_UNAVAILABLE, "Win32/WGL: No pixel formats found");
         return NULL;
     }
 
-    result = (_GLFWfbconfig*) malloc(sizeof(_GLFWfbconfig) * count);
-    if (!result)
+    fbconfigs = (_GLFWfbconfig*) malloc(sizeof(_GLFWfbconfig) * available);
+    if (!fbconfigs)
     {
         _glfwSetError(GLFW_OUT_OF_MEMORY,
                       "Win32/WGL: Failed to allocate _GLFWfbconfig array");
         return NULL;
     }
 
-    for (i = 1;  i <= count;  i++)
+    for (i = 1;  i <= available;  i++)
     {
+        _GLFWfbconfig* f = fbconfigs + *found;
+
         if (window->WGL.ARB_pixel_format)
         {
             // Get pixel format attributes through WGL_ARB_pixel_format
@@ -203,41 +209,26 @@ static _GLFWfbconfig* getFBConfigs(_GLFWwindow* window, unsigned int* found)
                 continue;
             }
 
-            result[*found].redBits =
-                getPixelFormatAttrib(window, i, WGL_RED_BITS_ARB);
-            result[*found].greenBits =
-                getPixelFormatAttrib(window, i, WGL_GREEN_BITS_ARB);
-            result[*found].blueBits =
-                getPixelFormatAttrib(window, i, WGL_BLUE_BITS_ARB);
-            result[*found].alphaBits =
-                getPixelFormatAttrib(window, i, WGL_ALPHA_BITS_ARB);
+            f->redBits = getPixelFormatAttrib(window, i, WGL_RED_BITS_ARB);
+            f->greenBits = getPixelFormatAttrib(window, i, WGL_GREEN_BITS_ARB);
+            f->blueBits = getPixelFormatAttrib(window, i, WGL_BLUE_BITS_ARB);
+            f->alphaBits = getPixelFormatAttrib(window, i, WGL_ALPHA_BITS_ARB);
 
-            result[*found].depthBits =
-                getPixelFormatAttrib(window, i, WGL_DEPTH_BITS_ARB);
-            result[*found].stencilBits =
-                getPixelFormatAttrib(window, i, WGL_STENCIL_BITS_ARB);
+            f->depthBits = getPixelFormatAttrib(window, i, WGL_DEPTH_BITS_ARB);
+            f->stencilBits = getPixelFormatAttrib(window, i, WGL_STENCIL_BITS_ARB);
 
-            result[*found].accumRedBits =
-                getPixelFormatAttrib(window, i, WGL_ACCUM_RED_BITS_ARB);
-            result[*found].accumGreenBits =
-                getPixelFormatAttrib(window, i, WGL_ACCUM_GREEN_BITS_ARB);
-            result[*found].accumBlueBits =
-                getPixelFormatAttrib(window, i, WGL_ACCUM_BLUE_BITS_ARB);
-            result[*found].accumAlphaBits =
-                getPixelFormatAttrib(window, i, WGL_ACCUM_ALPHA_BITS_ARB);
+            f->accumRedBits = getPixelFormatAttrib(window, i, WGL_ACCUM_RED_BITS_ARB);
+            f->accumGreenBits = getPixelFormatAttrib(window, i, WGL_ACCUM_GREEN_BITS_ARB);
+            f->accumBlueBits = getPixelFormatAttrib(window, i, WGL_ACCUM_BLUE_BITS_ARB);
+            f->accumAlphaBits = getPixelFormatAttrib(window, i, WGL_ACCUM_ALPHA_BITS_ARB);
 
-            result[*found].auxBuffers =
-                getPixelFormatAttrib(window, i, WGL_AUX_BUFFERS_ARB);
-            result[*found].stereo =
-                getPixelFormatAttrib(window, i, WGL_STEREO_ARB);
+            f->auxBuffers = getPixelFormatAttrib(window, i, WGL_AUX_BUFFERS_ARB);
+            f->stereo = getPixelFormatAttrib(window, i, WGL_STEREO_ARB);
 
             if (window->WGL.ARB_multisample)
-            {
-                result[*found].samples =
-                    getPixelFormatAttrib(window, i, WGL_SAMPLES_ARB);
-            }
+                f->samples = getPixelFormatAttrib(window, i, WGL_SAMPLES_ARB);
             else
-                result[*found].samples = 0;
+                f->samples = 0;
         }
         else
         {
@@ -267,32 +258,38 @@ static _GLFWfbconfig* getFBConfigs(_GLFWwindow* window, unsigned int* found)
             if (pfd.iPixelType != PFD_TYPE_RGBA)
                 continue;
 
-            result[*found].redBits = pfd.cRedBits;
-            result[*found].greenBits = pfd.cGreenBits;
-            result[*found].blueBits = pfd.cBlueBits;
-            result[*found].alphaBits = pfd.cAlphaBits;
+            f->redBits = pfd.cRedBits;
+            f->greenBits = pfd.cGreenBits;
+            f->blueBits = pfd.cBlueBits;
+            f->alphaBits = pfd.cAlphaBits;
 
-            result[*found].depthBits = pfd.cDepthBits;
-            result[*found].stencilBits = pfd.cStencilBits;
+            f->depthBits = pfd.cDepthBits;
+            f->stencilBits = pfd.cStencilBits;
 
-            result[*found].accumRedBits = pfd.cAccumRedBits;
-            result[*found].accumGreenBits = pfd.cAccumGreenBits;
-            result[*found].accumBlueBits = pfd.cAccumBlueBits;
-            result[*found].accumAlphaBits = pfd.cAccumAlphaBits;
+            f->accumRedBits = pfd.cAccumRedBits;
+            f->accumGreenBits = pfd.cAccumGreenBits;
+            f->accumBlueBits = pfd.cAccumBlueBits;
+            f->accumAlphaBits = pfd.cAccumAlphaBits;
 
-            result[*found].auxBuffers = pfd.cAuxBuffers;
-            result[*found].stereo = (pfd.dwFlags & PFD_STEREO) ? GL_TRUE : GL_FALSE;
+            f->auxBuffers = pfd.cAuxBuffers;
+            f->stereo = (pfd.dwFlags & PFD_STEREO) ? GL_TRUE : GL_FALSE;
 
             // PFD pixel formats do not support FSAA
-            result[*found].samples = 0;
+            f->samples = 0;
         }
 
-        result[*found].platformID = i;
+        f->platformID = i;
 
         (*found)++;
     }
 
-    return result;
+    if (*found == 0)
+    {
+        free(fbconfigs);
+        return NULL;
+    }
+
+    return fbconfigs;
 }
 
 
@@ -452,7 +449,7 @@ static GLboolean createContext(_GLFWwindow* window,
 // Hide mouse cursor
 //========================================================================
 
-static void hideMouseCursor(_GLFWwindow* window)
+static void hideCursor(_GLFWwindow* window)
 {
 }
 
@@ -461,7 +458,7 @@ static void hideMouseCursor(_GLFWwindow* window)
 // Capture mouse cursor
 //========================================================================
 
-static void captureMouseCursor(_GLFWwindow* window)
+static void captureCursor(_GLFWwindow* window)
 {
     RECT ClipWindowRect;
 
@@ -480,7 +477,7 @@ static void captureMouseCursor(_GLFWwindow* window)
 // Show mouse cursor
 //========================================================================
 
-static void showMouseCursor(_GLFWwindow* window)
+static void showCursor(_GLFWwindow* window)
 {
     // Un-capture cursor
     ReleaseCapture();
@@ -787,7 +784,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 // The window was deactivated (or iconified, see above)
 
                 if (window->cursorMode == GLFW_CURSOR_CAPTURED)
-                    showMouseCursor(window);
+                    showCursor(window);
 
                 if (window->mode == GLFW_FULLSCREEN)
                 {
@@ -810,7 +807,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 // The window was activated
 
                 if (window->cursorMode == GLFW_CURSOR_CAPTURED)
-                    captureMouseCursor(window);
+                    captureCursor(window);
 
                 if (window->mode == GLFW_FULLSCREEN)
                 {
@@ -965,14 +962,14 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_MOUSEMOVE:
         {
-            int newMouseX, newMouseY;
+            int newCursorX, newCursorY;
 
-            // Get signed (!) mouse position
-            newMouseX = (int)((short)LOWORD(lParam));
-            newMouseY = (int)((short)HIWORD(lParam));
+            // Get signed (!) cursor position
+            newCursorX = (int)((short)LOWORD(lParam));
+            newCursorY = (int)((short)HIWORD(lParam));
 
-            if (newMouseX != window->Win32.oldMouseX ||
-                newMouseY != window->Win32.oldMouseY)
+            if (newCursorX != window->Win32.oldCursorX ||
+                newCursorY != window->Win32.oldCursorY)
             {
                 int x, y;
 
@@ -981,17 +978,17 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                     if (_glfwLibrary.activeWindow != window)
                         return 0;
 
-                    x = newMouseX - window->Win32.oldMouseX;
-                    y = newMouseY - window->Win32.oldMouseY;
+                    x = newCursorX - window->Win32.oldCursorX;
+                    y = newCursorY - window->Win32.oldCursorY;
                 }
                 else
                 {
-                    x = newMouseX;
-                    y = newMouseY;
+                    x = newCursorX;
+                    y = newCursorY;
                 }
 
-                window->Win32.oldMouseX = newMouseX;
-                window->Win32.oldMouseY = newMouseY;
+                window->Win32.oldCursorX = newCursorX;
+                window->Win32.oldCursorY = newCursorY;
                 window->Win32.cursorCentered = GL_FALSE;
 
                 _glfwInputCursorMotion(window, x, y);
@@ -1375,11 +1372,11 @@ static int createWindow(_GLFWwindow* window,
 
     initWGLExtensions(window);
 
-    // Initialize mouse position data
+    // Initialize cursor position data
     GetCursorPos(&pos);
     ScreenToClient(window->Win32.handle, &pos);
-    window->Win32.oldMouseX = window->cursorPosX = pos.x;
-    window->Win32.oldMouseY = window->cursorPosY = pos.y;
+    window->Win32.oldCursorX = window->cursorPosX = pos.x;
+    window->Win32.oldCursorY = window->cursorPosY = pos.y;
 
     return GL_TRUE;
 }
@@ -1644,7 +1641,13 @@ void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height)
 
 void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y)
 {
-    SetWindowPos(window->Win32.handle, HWND_TOP, x, y, 0, 0,
+    RECT rect;
+
+    GetClientRect(window->Win32.handle, &rect);
+    AdjustWindowRectEx(&rect, window->Win32.dwStyle, FALSE, window->Win32.dwExStyle);
+
+    SetWindowPos(window->Win32.handle, HWND_TOP,
+                 x + rect.left, y + rect.top, 0, 0,
                  SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
 }
 
@@ -1788,13 +1791,13 @@ void _glfwPlatformPollEvents(void)
     if (window)
     {
         window->Win32.cursorCentered = GL_FALSE;
-        window->Win32.oldMouseX = window->width / 2;
-        window->Win32.oldMouseY = window->height / 2;
+        window->Win32.oldCursorX = window->width / 2;
+        window->Win32.oldCursorY = window->height / 2;
     }
     else
     {
-        //window->Win32.oldMouseX = window->cursorPosX;
-        //window->Win32.oldMouseY = window->cursorPosY;
+        //window->Win32.oldCursorX = window->cursorPosX;
+        //window->Win32.oldCursorY = window->cursorPosY;
     }
 
     while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -1851,9 +1854,9 @@ void _glfwPlatformPollEvents(void)
         if (window->cursorMode == GLFW_CURSOR_CAPTURED &&
             !window->Win32.cursorCentered)
         {
-            _glfwPlatformSetMouseCursorPos(window,
-                                           window->width / 2,
-                                           window->height / 2);
+            _glfwPlatformSetCursorPos(window,
+                                      window->width / 2,
+                                      window->height / 2);
             window->Win32.cursorCentered = GL_TRUE;
         }
     }
@@ -1873,10 +1876,10 @@ void _glfwPlatformWaitEvents(void)
 
 
 //========================================================================
-// Set physical mouse cursor position
+// Set physical cursor position
 //========================================================================
 
-void _glfwPlatformSetMouseCursorPos(_GLFWwindow* window, int x, int y)
+void _glfwPlatformSetCursorPos(_GLFWwindow* window, int x, int y)
 {
     POINT pos;
 
@@ -1898,13 +1901,13 @@ void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode)
     switch (mode)
     {
         case GLFW_CURSOR_NORMAL:
-            showMouseCursor(window);
+            showCursor(window);
             break;
         case GLFW_CURSOR_HIDDEN:
-            hideMouseCursor(window);
+            hideCursor(window);
             break;
         case GLFW_CURSOR_CAPTURED:
-            captureMouseCursor(window);
+            captureCursor(window);
             break;
     }
 }

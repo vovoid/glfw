@@ -146,11 +146,7 @@ extern "C" {
 
 /* -------------------- END SYSTEM/COMPILER SPECIFIC --------------------- */
 
-/* Include standard OpenGL headers: GLFW uses GL_FALSE/GL_TRUE, and it is
- * convenient for the user to only have to include <GL/glfw.h>. This also
- * solves the problem with Windows <GL/gl.h> and <GL/glu.h> needing some
- * special defines which normally requires the user to include <windows.h>
- * (which is not a nice solution for portable programs).
+/* Include the chosen OpenGL header and, optionally, the GLU header.
  */
 #if defined(__APPLE_CC__)
   #if defined(GLFW_INCLUDE_GL3)
@@ -159,7 +155,7 @@ extern "C" {
     #define GL_GLEXT_LEGACY
     #include <OpenGL/gl.h>
   #endif
-  #ifndef GLFW_NO_GLU
+  #if defined(GLFW_INCLUDE_GLU)
     #include <OpenGL/glu.h>
   #endif
 #else
@@ -168,7 +164,7 @@ extern "C" {
   #else
     #include <GL/gl.h>
   #endif
-  #ifndef GLFW_NO_GLU
+  #if defined(GLFW_INCLUDE_GLU)
     #include <GL/glu.h>
   #endif
 #endif
@@ -462,6 +458,7 @@ extern "C" {
 #define GLFW_VERSION_UNAVAILABLE  0x00070007
 #define GLFW_PLATFORM_ERROR       0x00070008
 #define GLFW_WINDOW_NOT_ACTIVE    0x00070009
+#define GLFW_FORMAT_UNAVAILABLE   0x0007000A
 
 /* Gamma ramps */
 #define GLFW_GAMMA_RAMP_SIZE      256
@@ -469,6 +466,9 @@ extern "C" {
 /*************************************************************************
  * Typedefs
  *************************************************************************/
+
+/* OpenGL function pointer type */
+typedef void (*GLFWglproc)(void);
 
 /* Window handle type */
 typedef void* GLFWwindow;
@@ -481,7 +481,7 @@ typedef void (* GLFWwindowrefreshfun)(GLFWwindow);
 typedef void (* GLFWwindowfocusfun)(GLFWwindow,int);
 typedef void (* GLFWwindowiconifyfun)(GLFWwindow,int);
 typedef void (* GLFWmousebuttonfun)(GLFWwindow,int,int);
-typedef void (* GLFWmouseposfun)(GLFWwindow,int,int);
+typedef void (* GLFWcursorposfun)(GLFWwindow,int,int);
 typedef void (* GLFWcursorenterfun)(GLFWwindow,int);
 typedef void (* GLFWscrollfun)(GLFWwindow,double,double);
 typedef void (* GLFWkeyfun)(GLFWwindow,int,int);
@@ -561,13 +561,13 @@ GLFWAPI int  glfwGetInputMode(GLFWwindow window, int mode);
 GLFWAPI void glfwSetInputMode(GLFWwindow window, int mode, int value);
 GLFWAPI int  glfwGetKey(GLFWwindow window, int key);
 GLFWAPI int  glfwGetMouseButton(GLFWwindow window, int button);
-GLFWAPI void glfwGetMousePos(GLFWwindow window, int* xpos, int* ypos);
-GLFWAPI void glfwSetMousePos(GLFWwindow window, int xpos, int ypos);
+GLFWAPI void glfwGetCursorPos(GLFWwindow window, int* xpos, int* ypos);
+GLFWAPI void glfwSetCursorPos(GLFWwindow window, int xpos, int ypos);
 GLFWAPI void glfwGetScrollOffset(GLFWwindow window, double* xoffset, double* yoffset);
 GLFWAPI void glfwSetKeyCallback(GLFWkeyfun cbfun);
 GLFWAPI void glfwSetCharCallback(GLFWcharfun cbfun);
 GLFWAPI void glfwSetMouseButtonCallback(GLFWmousebuttonfun cbfun);
-GLFWAPI void glfwSetMousePosCallback(GLFWmouseposfun cbfun);
+GLFWAPI void glfwSetCursorPosCallback(GLFWcursorposfun cbfun);
 GLFWAPI void glfwSetCursorEnterCallback(GLFWcursorenterfun cbfun);
 GLFWAPI void glfwSetScrollCallback(GLFWscrollfun cbfun);
 
@@ -575,6 +575,10 @@ GLFWAPI void glfwSetScrollCallback(GLFWscrollfun cbfun);
 GLFWAPI int glfwGetJoystickParam(int joy, int param);
 GLFWAPI int glfwGetJoystickPos(int joy, float* pos, int numaxes);
 GLFWAPI int glfwGetJoystickButtons(int joy, unsigned char* buttons, int numbuttons);
+
+/* Clipboard */
+GLFWAPI void glfwSetClipboardString(GLFWwindow window, const char* string);
+GLFWAPI const char* glfwGetClipboardString(GLFWwindow window);
 
 /* Time */
 GLFWAPI double glfwGetTime(void);
@@ -586,7 +590,7 @@ GLFWAPI GLFWwindow glfwGetCurrentContext(void);
 GLFWAPI void  glfwSwapBuffers(void);
 GLFWAPI void  glfwSwapInterval(int interval);
 GLFWAPI int   glfwExtensionSupported(const char* extension);
-GLFWAPI void* glfwGetProcAddress(const char* procname);
+GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
 GLFWAPI void  glfwCopyContext(GLFWwindow src, GLFWwindow dst, unsigned long mask);
 
 

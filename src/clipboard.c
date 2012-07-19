@@ -38,13 +38,12 @@
 //////////////////////////////////////////////////////////////////////////
 
 //========================================================================
-// Calculate a gamma ramp from the specified value and set it
+// Set the clipboard contents
 //========================================================================
 
-GLFWAPI void glfwSetGamma(float gamma)
+GLFWAPI void glfwSetClipboardString(GLFWwindow handle, const char* string)
 {
-    int i, size = GLFW_GAMMA_RAMP_SIZE;
-    GLFWgammaramp ramp;
+    _GLFWwindow* window = (_GLFWwindow*) handle;
 
     if (!_glfwInitialized)
     {
@@ -52,66 +51,24 @@ GLFWAPI void glfwSetGamma(float gamma)
         return;
     }
 
-    if (gamma <= 0.f)
-    {
-        _glfwSetError(GLFW_INVALID_VALUE,
-                      "glfwSetGamma: Gamma value must be greater than zero");
-        return;
-    }
-
-    for (i = 0;  i < size;  i++)
-    {
-        float value = (float) i / ((float) (size - 1));
-
-        // Apply gamma
-        value = (float) pow(value, 1.f / gamma) * 65535.f + 0.5f;
-
-        // Clamp values
-        if (value < 0.f)
-            value = 0.f;
-        else if (value > 65535.f)
-            value = 65535.f;
-
-        // Set the gamma ramp values
-        ramp.red[i]   = (unsigned short) value;
-        ramp.green[i] = (unsigned short) value;
-        ramp.blue[i]  = (unsigned short) value;
-    }
-
-    glfwSetGammaRamp(&ramp);
+    _glfwPlatformSetClipboardString(window, string);
 }
 
 
 //========================================================================
-// Return the cached currently set gamma ramp
+// Return the current clipboard contents
 //========================================================================
 
-GLFWAPI void glfwGetGammaRamp(GLFWgammaramp* ramp)
+GLFWAPI const char* glfwGetClipboardString(GLFWwindow handle)
 {
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+
     if (!_glfwInitialized)
     {
         _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
-        return;
+        return NULL;
     }
 
-    *ramp = _glfwLibrary.currentRamp;
-}
-
-
-//========================================================================
-// Make the specified gamma ramp current
-//========================================================================
-
-GLFWAPI void glfwSetGammaRamp(const GLFWgammaramp* ramp)
-{
-    if (!_glfwInitialized)
-    {
-        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
-        return;
-    }
-
-    _glfwPlatformSetGammaRamp(ramp);
-    _glfwLibrary.currentRamp = *ramp;
-    _glfwLibrary.rampChanged = GL_TRUE;
+    return _glfwPlatformGetClipboardString(window);
 }
 

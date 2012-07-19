@@ -30,6 +30,7 @@
 #include <GL/glfw3.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "getopt.h"
@@ -38,24 +39,28 @@ static GLFWwindow window = NULL;
 
 enum Mode
 {
-    NO_MODE,
     LIST_MODE,
     TEST_MODE
 };
 
 static void usage(void)
 {
-    printf("Usage: modes -l\n");
-    printf("       modes -t\n");
+    printf("Usage: modes [-t]\n");
     printf("       modes -h\n");
 }
 
-static void print_mode(GLFWvidmode* mode)
+static const char* format_mode(GLFWvidmode* mode)
 {
-    printf("%i x %i x %i (%i %i %i)",
-           mode->width, mode->height,
-           mode->redBits + mode->greenBits + mode->blueBits,
-           mode->redBits, mode->greenBits, mode->blueBits);
+    static char buffer[512];
+
+    snprintf(buffer, sizeof(buffer),
+             "%i x %i x %i (%i %i %i)",
+             mode->width, mode->height,
+             mode->redBits + mode->greenBits + mode->blueBits,
+             mode->redBits, mode->greenBits, mode->blueBits);
+
+    buffer[sizeof(buffer) - 1] = '\0';
+    return buffer;
 }
 
 static void error_callback(int error, const char* description)
@@ -76,49 +81,85 @@ static int window_close_callback(GLFWwindow dummy)
     return GL_TRUE;
 }
 
-static void list_modes(GLFWvidmode* modes, int count)
+static void key_callback(GLFWwindow dummy, int key, int action)
 {
-    int i;
-    GLFWvidmode mode;
-
-    glfwGetDesktopMode(&mode);
-    printf("Desktop mode: ");
-    print_mode(&mode);
-    putchar('\n');
-
-    for (i = 0;  i < count;  i++)
+    if (key == GLFW_KEY_ESCAPE)
     {
-        printf("%3i: ", i);
-        print_mode(modes + i);
-        putchar('\n');
+        glfwCloseWindow(window);
+        window = NULL;
     }
 }
 
-static void test_modes(GLFWvidmode* modes, int count)
+static GLFWvidmode* get_video_modes(size_t* found)
 {
-    int i, width, height;
+    size_t count = 0;
+    GLFWvidmode* modes = NULL;
 
-    glfwSetWindowSizeCallback(window_size_callback);
-    glfwSetWindowCloseCallback(window_close_callback);
+    for (;;)
+    {
+        count += 256;
+        modes = realloc(modes, sizeof(GLFWvidmode) * count);
+
+        *found = glfwGetVideoModes(modes, count);
+        if (*found < count)
+            break;
+    }
+
+    return modes;
+}
+
+static void list_modes(void)
+{
+    size_t count, i;
+    GLFWvidmode desktop_mode;
+    GLFWvidmode* modes = get_video_modes(&count);
+
+    glfwGetDesktopMode(&desktop_mode);
+    printf("Desktop mode: %s\n", format_mode(&desktop_mode));
+
+    printf("Available modes:\n");
 
     for (i = 0;  i < count;  i++)
     {
-        glfwOpenWindowHint(GLFW_RED_BITS, modes[i].redBits);
-        glfwOpenWindowHint(GLFW_GREEN_BITS, modes[i].greenBits);
-        glfwOpenWindowHint(GLFW_BLUE_BITS, modes[i].blueBits);
+        printf("%3u: %s", (unsigned int) i, format_mode(modes + i));
 
-        printf("Opening ");
-        print_mode(modes + i);
-        printf(" window\n");
+        if (memcmp(&desktop_mode, modes + i, sizeof(GLFWvidmode)) == 0)
+            printf(" (desktop mode)");
 
-        window = glfwOpenWindow(modes[i].width, modes[i].height,
+        putchar('\n');
+    }
+
+    free(modes);
+}
+
+static void test_modes(void)
+{
+    int width, height;
+    size_t i, count;
+    GLFWvidmode* modes = get_video_modes(&count);
+
+    glfwSetWindowSizeCallback(window_size_callback);
+    glfwSetWindowCloseCallback(window_close_callback);
+    glfwSetKeyCallback(key_callback);
+
+    for (i = 0;  i < count;  i++)
+    {
+        GLFWvidmode* mode = modes + i;
+
+        glfwOpenWindowHint(GLFW_RED_BITS, mode->redBits);
+        glfwOpenWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        glfwOpenWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+
+        printf("Testing mode %u: %s", (unsigned int) i, format_mode(mode));
+
+        window = glfwOpenWindow(mode->width, mode->height,
                                 GLFW_FULLSCREEN, "Video Mode Test",
                                 NULL);
         if (!window)
         {
-            printf("Failed to enter mode %i: ", i);
-            print_mode(modes + i);
-            putchar('\n');
+            printf("Failed to enter mode %u: %s\n",
+                   (unsigned int) i,
+                   format_mode(mode));
             continue;
         }
 
@@ -138,26 +179,26 @@ static void test_modes(GLFWvidmode* modes, int count)
             }
         }
 
-        if (glfwGetWindowParam(window, GLFW_RED_BITS) != modes[i].redBits ||
-            glfwGetWindowParam(window, GLFW_GREEN_BITS) != modes[i].greenBits ||
-            glfwGetWindowParam(window, GLFW_BLUE_BITS) != modes[i].blueBits)
+        if (glfwGetWindowParam(window, GLFW_RED_BITS) != mode->redBits ||
+            glfwGetWindowParam(window, GLFW_GREEN_BITS) != mode->greenBits ||
+            glfwGetWindowParam(window, GLFW_BLUE_BITS) != mode->blueBits)
         {
             printf("*** Color bit mismatch: (%i %i %i) instead of (%i %i %i)\n",
                    glfwGetWindowParam(window, GLFW_RED_BITS),
                    glfwGetWindowParam(window, GLFW_GREEN_BITS),
                    glfwGetWindowParam(window, GLFW_BLUE_BITS),
-                   modes[i].redBits,
-                   modes[i].greenBits,
-                   modes[i].blueBits);
+                   mode->redBits,
+                   mode->greenBits,
+                   mode->blueBits);
         }
 
         glfwGetWindowSize(window, &width, &height);
 
-        if (width != modes[i].width || height != height)
+        if (width != mode->width || height != mode->height)
         {
             printf("*** Size mismatch: %ix%i instead of %ix%i\n",
                    width, height,
-                   modes[i].width, modes[i].height);
+                   mode->width, mode->height);
         }
 
         printf("Closing window\n");
@@ -166,23 +207,21 @@ static void test_modes(GLFWvidmode* modes, int count)
         glfwPollEvents();
         window = NULL;
     }
+
+    free(modes);
 }
 
 int main(int argc, char** argv)
 {
-    int ch, found, count = 0, mode = NO_MODE;
-    GLFWvidmode* modes = NULL;
+    int ch, mode = LIST_MODE;
 
-    while ((ch = getopt(argc, argv, "lth")) != -1)
+    while ((ch = getopt(argc, argv, "th")) != -1)
     {
         switch (ch)
         {
             case 'h':
                 usage();
                 exit(EXIT_SUCCESS);
-            case 'l':
-                mode = LIST_MODE;
-                break;
             case 't':
                 mode = TEST_MODE;
                 break;
@@ -200,23 +239,10 @@ int main(int argc, char** argv)
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-    for (;;)
-    {
-        count += 256;
-        modes = realloc(modes, sizeof(GLFWvidmode) * count);
-
-        found = glfwGetVideoModes(modes, count);
-        if (found < count)
-            break;
-    }
-
     if (mode == LIST_MODE)
-        list_modes(modes, found);
+        list_modes();
     else if (mode == TEST_MODE)
-        test_modes(modes, found);
-
-    free(modes);
-    modes = NULL;
+        test_modes();
 
     exit(EXIT_SUCCESS);
 }

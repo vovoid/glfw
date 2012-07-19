@@ -75,15 +75,31 @@
 #elif defined(_GLFW_HAS_GLXGETPROCADDRESSEXT)
  #define _glfw_glXGetProcAddress(x) glXGetProcAddressEXT(x)
 #elif defined(_GLFW_HAS_DLOPEN)
- #define _glfw_glXGetProcAddress(x) dlsym(_glfwLibrary.X11.libGL, x)
+ #define _glfw_glXGetProcAddress(x) dlsym(_glfwLibrary.GLX.libGL, x)
  #define _GLFW_DLOPEN_LIBGL
 #else
  #error "No OpenGL entry point retrieval mechanism was enabled"
 #endif
 
 #define _GLFW_PLATFORM_WINDOW_STATE  _GLFWwindowX11 X11
-#define _GLFW_PLATFORM_LIBRARY_STATE _GLFWlibraryX11 X11
 #define _GLFW_PLATFORM_CONTEXT_STATE _GLFWcontextGLX GLX
+#define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryX11 X11
+#define _GLFW_PLATFORM_LIBRARY_OPENGL_STATE _GLFWlibraryGLX GLX
+
+// Clipboard format atom indices
+#define _GLFW_CLIPBOARD_FORMAT_UTF8     0
+#define _GLFW_CLIPBOARD_FORMAT_COMPOUND 1
+#define _GLFW_CLIPBOARD_FORMAT_STRING   2
+#define _GLFW_CLIPBOARD_FORMAT_COUNT    3
+
+// Clipboard conversion status tokens
+#define _GLFW_CONVERSION_INACTIVE       0
+#define _GLFW_CONVERSION_SUCCEEDED      1
+#define _GLFW_CONVERSION_FAILED         2
+
+#ifndef GLX_MESA_swap_control
+typedef int (*PFNGLXSWAPINTERVALMESAPROC)(int);
+#endif
 
 
 //========================================================================
@@ -101,26 +117,8 @@ typedef intptr_t GLFWintptr;
 //------------------------------------------------------------------------
 typedef struct _GLFWcontextGLX
 {
-    GLXFBConfigID fbconfigID;        // ID of selected GLXFBConfig
     GLXContext    context;           // OpenGL rendering context
     XVisualInfo*  visual;            // Visual for selected GLXFBConfig
-
-    // GLX extensions
-    PFNGLXSWAPINTERVALSGIPROC             SwapIntervalSGI;
-    PFNGLXSWAPINTERVALEXTPROC             SwapIntervalEXT;
-    PFNGLXGETFBCONFIGATTRIBSGIXPROC       GetFBConfigAttribSGIX;
-    PFNGLXCHOOSEFBCONFIGSGIXPROC          ChooseFBConfigSGIX;
-    PFNGLXCREATECONTEXTWITHCONFIGSGIXPROC CreateContextWithConfigSGIX;
-    PFNGLXGETVISUALFROMFBCONFIGSGIXPROC   GetVisualFromFBConfigSGIX;
-    PFNGLXCREATECONTEXTATTRIBSARBPROC     CreateContextAttribsARB;
-    GLboolean   SGIX_fbconfig;
-    GLboolean   SGI_swap_control;
-    GLboolean   EXT_swap_control;
-    GLboolean   ARB_multisample;
-    GLboolean   ARB_create_context;
-    GLboolean   ARB_create_context_profile;
-    GLboolean   ARB_create_context_robustness;
-    GLboolean   EXT_create_context_es2_profile;
 
 } _GLFWcontextGLX;
 
@@ -146,7 +144,7 @@ typedef struct _GLFWwindowX11
 
 
 //------------------------------------------------------------------------
-// Platform-specific library global data
+// Platform-specific library global data for X11
 //------------------------------------------------------------------------
 typedef struct _GLFWlibraryX11
 {
@@ -165,9 +163,6 @@ typedef struct _GLFWlibraryX11
 
     // True if window manager supports EWMH
     GLboolean       hasEWMH;
-
-    // Server-side GLX version
-    int             glxMajor, glxMinor;
 
     struct {
         GLboolean   available;
@@ -226,10 +221,51 @@ typedef struct _GLFWlibraryX11
         uint64_t    base;
     } timer;
 
+    // Selection data
+    struct {
+        Atom atom;
+        Atom formats[_GLFW_CLIPBOARD_FORMAT_COUNT];
+        char* string;
+        Atom target;
+        Atom targets;
+        Atom property;
+        int status;
+    } selection;
+
+} _GLFWlibraryX11;
+
+
+//------------------------------------------------------------------------
+// Platform-specific library global data for GLX
+//------------------------------------------------------------------------
+typedef struct _GLFWlibraryGLX
+{
+    // Server-side GLX version
+    int             majorVersion, minorVersion;
+
+    // GLX extensions
+    PFNGLXSWAPINTERVALSGIPROC             SwapIntervalSGI;
+    PFNGLXSWAPINTERVALEXTPROC             SwapIntervalEXT;
+    PFNGLXSWAPINTERVALMESAPROC            SwapIntervalMESA;
+    PFNGLXGETFBCONFIGATTRIBSGIXPROC       GetFBConfigAttribSGIX;
+    PFNGLXCHOOSEFBCONFIGSGIXPROC          ChooseFBConfigSGIX;
+    PFNGLXCREATECONTEXTWITHCONFIGSGIXPROC CreateContextWithConfigSGIX;
+    PFNGLXGETVISUALFROMFBCONFIGSGIXPROC   GetVisualFromFBConfigSGIX;
+    PFNGLXCREATECONTEXTATTRIBSARBPROC     CreateContextAttribsARB;
+    GLboolean   SGIX_fbconfig;
+    GLboolean   SGI_swap_control;
+    GLboolean   EXT_swap_control;
+    GLboolean   MESA_swap_control;
+    GLboolean   ARB_multisample;
+    GLboolean   ARB_create_context;
+    GLboolean   ARB_create_context_profile;
+    GLboolean   ARB_create_context_robustness;
+    GLboolean   EXT_create_context_es2_profile;
+
 #if defined(_GLFW_DLOPEN_LIBGL)
     void*           libGL;  // dlopen handle for libGL.so
 #endif
-} _GLFWlibraryX11;
+} _GLFWlibraryGLX;
 
 
 //------------------------------------------------------------------------
@@ -252,6 +288,19 @@ GLFWGLOBAL struct {
 // Time
 void _glfwInitTimer(void);
 
+// Gamma
+void _glfwInitGammaRamp(void);
+void _glfwTerminateGammaRamp(void);
+
+// OpenGL support
+int _glfwInitOpenGL(void);
+void _glfwTerminateOpenGL(void);
+int _glfwCreateContext(_GLFWwindow* window,
+                       const _GLFWwndconfig* wndconfig,
+                       const _GLFWfbconfig* fbconfig);
+void _glfwDestroyContext(_GLFWwindow* window);
+XVisualInfo* _glfwGetContextVisual(_GLFWwindow* window);
+
 // Fullscreen support
 int  _glfwGetClosestVideoMode(int* width, int* height, int* rate);
 void _glfwSetVideoModeMODE(int mode, int rate);
@@ -265,5 +314,11 @@ void _glfwTerminateJoysticks(void);
 // Unicode support
 long _glfwKeySym2Unicode(KeySym keysym);
 
+// Clipboard handling
+GLboolean _glfwReadSelection(XSelectionEvent* request);
+Atom _glfwWriteSelection(XSelectionRequestEvent* request);
+
+// Event processing
+void _glfwProcessPendingEvents(void);
 
 #endif // _platform_h_
