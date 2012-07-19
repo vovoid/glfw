@@ -292,15 +292,19 @@ version of GLFW.</p>
   <li>Added <code>glfwSetGamma</code>, <code>glfwSetGammaRamp</code> and <code>glfwGetGammaRamp</code> functions and <code>GLFWgammaramp</code> type for monitor gamma ramp control</li>
   <li>Changed buffer bit depth parameters of <code>glfwOpenWindow</code> to window hints</li>
   <li>Changed <code>glfwOpenWindow</code> and <code>glfwSetWindowTitle</code> to use UTF-8 encoded strings</li>
+  <li>Changed <code>glfwGetProcAddress</code> to return a (generic) function pointer</li>
   <li>Renamed <code>glfw.h</code> to <code>glfw3.h</code> to avoid conflicts with 2.x series</li>
   <li>Renamed <code>GLFW_WINDOW</code> token to <code>GLFW_WINDOWED</code></li>
   <li>Renamed <code>GLFW_WINDOW_NO_RESIZE</code> to <code>GLFW_WINDOW_RESIZABLE</code></li>
   <li>Renamed <code>GLFW_BUILD_DLL</code> to <code>_GLFW_BUILD_DLL</code></li>
   <li>Renamed <code>version</code> test to <code>glfwinfo</code></li>
+  <li>Renamed <code>GLFW_NO_GLU</code> to <code>GLFW_INCLUDE_GLU</code> and made it disabled by default</li>
+  <li>Renamed mouse position functions to cursor position equivalents</li>
   <li>Replaced ad hoc build system with CMake</li>
   <li>Replaced layout-dependent key codes with single, platform-independent set based on US layout</li>
   <li>Replaced mouse wheel interface with two-dimensional, floating point scrolling interface</li>
   <li>Replaced <code>glfwEnable</code> and <code>glfwDisable</code> with <code>glfwGetInputMode</code> and <code>glfwSetInputMode</code></li>
+  <li>Replaced <code>joystick</code> test with graphical version</li>
   <li>Made Unicode character input unaffected by <code>GLFW_KEY_REPEAT</code></li>
   <li>Removed event auto-polling and the <code>GLFW_AUTO_POLL_EVENTS</code> window enable</li>
   <li>Removed the Win32 port .def files</li>
@@ -316,6 +320,7 @@ version of GLFW.</p>
   <li>Bugfix: The default OpenGL version in the <code>glfwinfo</code> test was set to 1.1</li>
   <li>Bugfix: The OpenGL profile and forward-compatibility window parameters were not saved after context creation</li>
   <li>Bugfix: The FSAA test did not check for the availability of <code>GL_ARB_multisample</code></li>
+  <li>Bugfix: Cursor centering upon leaving captured cursor mode was reported before the mode was changed to non-captured</li>
   <li>[Cocoa] Added support for OpenGL 3.2 core profile in 10.7 Lion and above</li>
   <li>[Cocoa] Added support for joysticks</li>
   <li>[Cocoa] Postponed menu creation to first window creation</li>
@@ -327,7 +332,10 @@ version of GLFW.</p>
   <li>[Cocoa] Bugfix: The OpenGL framework was not retrieved, making glfwGetProcAddress crash</li>
   <li>[Cocoa] Bugfix: <code>glfwInit</code> changed the current directory for unbundled executables</li>
   <li>[Cocoa] Bugfix: The <code>GLFW_WINDOW_NO_RESIZE</code> window parameter was always zero</li>
-  <li>[X11] Added support for the <code>GLX_EXT_swap_control</code> extension as an alternative to <code>GLX_SGI_swap_control</code></li>
+  <li>[Cocoa] Bugfix: The cursor position incorrectly rounded during conversion</li>
+  <li>[Cocoa] Bugfix: Cursor positioning led to nonsensical results for fullscreen windows</li>
+  <li>[Cocoa] Bugfix: The GLFW window was flagged as restorable</li>
+  <li>[X11] Added support for the <code>GLX_EXT_swap_control</code> and <code>GLX_MESA_swap_control</code> extensions as alternatives to <code>GLX_SGI_swap_control</code></li>
   <li>[X11] Added the POSIX <code>CLOCK_MONOTONIC</code> time source as the preferred method</li>
   <li>[X11] Added dependency on libm, where present</li>
   <li>[X11] Added support for the <code>_NET_WM_NAME</code> and <code>_NET_WM_ICON_NAME</code> EWMH window properties</li>
@@ -341,6 +349,7 @@ version of GLFW.</p>
   <li>[Win32] Bugfix: The array for WGL context attributes was too small and could overflow</li>
   <li>[Win32] Bugfix: Alt+F4 hot key was not translated into <code>WM_CLOSE</code></li>
   <li>[Win32] Bugfix: The <code>GLFW_WINDOW_NO_RESIZE</code> window parameter was always zero</li>
+  <li>[Win32] Bugfix: A test was missing for whether all available pixel formats had been disqualified</li>
 </ul>
 
 <h3>v2.7</h3>
@@ -838,6 +847,8 @@ their skills.  Special thanks go out to:</p>
   <li>Keith Bauer, for his invaluable help with porting and maintaining GLFW on
   Mac OS X, and for his many ideas</li>
 
+  <li>Lambert Clara, for a bug fix for the modes test</li>
+
   <li>Jarrod Davis, for the Delphi port of GLFW</li>
 
   <li>Olivier Delannoy, for the initial implementation of FSAA support on
@@ -888,6 +899,9 @@ their skills.  Special thanks go out to:</p>
   <li>Glenn Lewis, for helping out with support for the D programming
   language</li>
 
+  <li>Shane Liesegang, for providing a bug fix relating to Cocoa window
+  restoration</li>
+
   <li>Tristam MacDonald, for his bug reports and feedback on the Cocoa port</li>
 
   <li>Hans 'Hanmac' Mackowiak, for the initial implementation of cursor
@@ -912,7 +926,7 @@ their skills.  Special thanks go out to:</p>
 
   <li>Steve Sexton, for reporting an input bug in the Carbon port</li>
 
-  <li>Dmitri Shuralyov, for support, bug reports and testing</li>
+  <li>Dmitri Shuralyov, for support, bug reports, bug fixes and testing</li>
 
   <li>Daniel Skorupski, for reporting a bug in the Win32 DEF file</li>
 

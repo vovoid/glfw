@@ -158,8 +158,9 @@ typedef DWORD (WINAPI * TIMEGETTIME_T) (void);
 
 
 #define _GLFW_PLATFORM_WINDOW_STATE  _GLFWwindowWin32 Win32
-#define _GLFW_PLATFORM_LIBRARY_STATE _GLFWlibraryWin32 Win32
 #define _GLFW_PLATFORM_CONTEXT_STATE _GLFWcontextWGL WGL
+#define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryWin32 Win32
+#define _GLFW_PLATFORM_LIBRARY_OPENGL_STATE _GLFWlibraryWGL WGL
 
 
 //========================================================================
@@ -211,12 +212,12 @@ typedef struct _GLFWwindowWin32
     int       desiredRefreshRate; // Desired vertical monitor refresh rate
     GLboolean cursorCentered;
     GLboolean cursorInside;
-    int       oldMouseX, oldMouseY;
+    int       oldCursorX, oldCursorY;
 } _GLFWwindowWin32;
 
 
 //------------------------------------------------------------------------
-// Platform-specific library global data
+// Platform-specific library global data for Win32
 //------------------------------------------------------------------------
 typedef struct _GLFWlibraryWin32
 {
@@ -267,6 +268,16 @@ typedef struct _GLFWlibraryWin32
 #endif // _GLFW_NO_DLOAD_TOUCH
 
 } _GLFWlibraryWin32;
+
+
+//------------------------------------------------------------------------
+// Platform-specific library global data for WGL
+//------------------------------------------------------------------------
+typedef struct _GLFWlibraryWGL
+{
+    int dummy;
+
+} _GLFWlibraryWGL;
 
 
 //========================================================================

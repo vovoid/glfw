@@ -51,6 +51,17 @@
 #define GLFW_STICK 2
 
 
+//========================================================================
+// Internal type declarations
+//========================================================================
+
+typedef struct _GLFWhints       _GLFWhints;
+typedef struct _GLFWwndconfig   _GLFWwndconfig;
+typedef struct _GLFWfbconfig    _GLFWfbconfig;
+typedef struct _GLFWwindow      _GLFWwindow;
+typedef struct _GLFWlibrary     _GLFWlibrary;
+
+
 //------------------------------------------------------------------------
 // Platform specific definitions goes in platform.h (which also includes
 // glfw.h)
@@ -74,12 +85,6 @@
 #else
  #error "No supported platform selected"
 #endif
-
-typedef struct _GLFWhints _GLFWhints;
-typedef struct _GLFWwndconfig _GLFWwndconfig;
-typedef struct _GLFWfbconfig _GLFWfbconfig;
-typedef struct _GLFWwindow _GLFWwindow;
-typedef struct _GLFWlibrary _GLFWlibrary;
 
 
 //------------------------------------------------------------------------
@@ -237,7 +242,7 @@ struct _GLFWlibrary
     GLFWwindowfocusfun   windowFocusCallback;
     GLFWwindowiconifyfun windowIconifyCallback;
     GLFWmousebuttonfun   mouseButtonCallback;
-    GLFWmouseposfun      mousePosCallback;
+    GLFWcursorposfun     cursorPosCallback;
     GLFWcursorenterfun   cursorEnterCallback;
     GLFWscrollfun        scrollCallback;
     GLFWkeyfun           keyCallback;
@@ -248,9 +253,11 @@ struct _GLFWlibrary
     GLFWgammaramp currentRamp;
     GLFWgammaramp originalRamp;
     int           originalRampSize;
+    GLboolean     rampChanged;
 
     // This is defined in the current port's platform.h
-    _GLFW_PLATFORM_LIBRARY_STATE;
+    _GLFW_PLATFORM_LIBRARY_WINDOW_STATE;
+    _GLFW_PLATFORM_LIBRARY_OPENGL_STATE;
 };
 
 
@@ -281,7 +288,7 @@ const char* _glfwPlatformGetVersionString(void);
 void _glfwPlatformEnableSystemKeys(_GLFWwindow* window);
 void _glfwPlatformDisableSystemKeys(_GLFWwindow* window);
 void _glfwPlatformSetTouchInput(_GLFWwindow* window, int enabled);
-void _glfwPlatformSetMouseCursorPos(_GLFWwindow* window, int x, int y);
+void _glfwPlatformSetCursorPos(_GLFWwindow* window, int x, int y);
 void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode);
 
 // Fullscreen
@@ -324,7 +331,7 @@ void _glfwPlatformSwapBuffers(void);
 void _glfwPlatformSwapInterval(int interval);
 void _glfwPlatformRefreshWindowParams(void);
 int  _glfwPlatformExtensionSupported(const char* extension);
-void* _glfwPlatformGetProcAddress(const char* procname);
+GLFWglproc _glfwPlatformGetProcAddress(const char* procname);
 void _glfwPlatformCopyContext(_GLFWwindow* src, _GLFWwindow* dst, unsigned long mask);
 
 

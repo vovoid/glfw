@@ -357,12 +357,13 @@ static int convertMacKeyCode(unsigned int macKeyCode)
         _glfwInputCursorMotion(window, [event deltaX], [event deltaY]);
     else
     {
-        NSPoint p = [event locationInWindow];
+        const NSPoint p = [event locationInWindow];
 
         // Cocoa coordinate system has origin at lower left
-        p.y = [[window->NS.object contentView] bounds].size.height - p.y;
+        const int x = lround(floor(p.x));
+        const int y = window->height - lround(ceil(p.y));
 
-        _glfwInputCursorMotion(window, p.x, p.y);
+        _glfwInputCursorMotion(window, x, y);
     }
 }
 
@@ -691,6 +692,9 @@ static GLboolean createWindow(_GLFWwindow* window,
     [window->NS.object setDelegate:window->NS.delegate];
     [window->NS.object setAcceptsMouseMovedEvents:YES];
     [window->NS.object center];
+
+    if ([window->NS.object respondsToSelector:@selector(setRestorable)])
+        [window->NS.object setRestorable:NO];
 
     return GL_TRUE;
 }
@@ -1152,30 +1156,27 @@ void _glfwPlatformWaitEvents( void )
 
 
 //========================================================================
-// Set physical mouse cursor position
+// Set physical cursor position
 //========================================================================
 
-void _glfwPlatformSetMouseCursorPos(_GLFWwindow* window, int x, int y)
+void _glfwPlatformSetCursorPos(_GLFWwindow* window, int x, int y)
 {
-    // The library seems to assume that after calling this the mouse won't move,
-    // but obviously it will, and escape the app's window, and activate other apps,
-    // and other badness in pain.  I think the API's just silly, but maybe I'm
-    // misunderstanding it...
-
-    // Also, (x, y) are window coords...
-
-    // Also, it doesn't seem possible to write this robustly without
-    // calculating the maximum y coordinate of all screens, since Cocoa's
-    // "global coordinates" are upside down from CG's...
-
-    NSPoint localPoint = NSMakePoint(x, y);
-    NSPoint globalPoint = [window->NS.object convertBaseToScreen:localPoint];
-    CGPoint mainScreenOrigin = CGDisplayBounds(CGMainDisplayID()).origin;
-    double mainScreenHeight = CGDisplayBounds(CGMainDisplayID()).size.height;
-    CGPoint targetPoint = CGPointMake(globalPoint.x - mainScreenOrigin.x,
-                                      mainScreenHeight - globalPoint.y -
-                                          mainScreenOrigin.y);
-    CGDisplayMoveCursorToPoint(CGMainDisplayID(), targetPoint);
+    if (window->mode == GLFW_FULLSCREEN)
+    {
+        NSPoint globalPoint = NSMakePoint(x, y);
+        CGDisplayMoveCursorToPoint(CGMainDisplayID(), globalPoint);
+    }
+    else
+    {
+        NSPoint localPoint = NSMakePoint(x, window->height - y - 1);
+        NSPoint globalPoint = [window->NS.object convertBaseToScreen:localPoint];
+        CGPoint mainScreenOrigin = CGDisplayBounds(CGMainDisplayID()).origin;
+        double mainScreenHeight = CGDisplayBounds(CGMainDisplayID()).size.height;
+        CGPoint targetPoint = CGPointMake(globalPoint.x - mainScreenOrigin.x,
+                                        mainScreenHeight - globalPoint.y -
+                                            mainScreenOrigin.y);
+        CGDisplayMoveCursorToPoint(CGMainDisplayID(), targetPoint);
+    }
 }
 
 
