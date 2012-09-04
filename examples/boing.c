@@ -604,7 +604,7 @@ int main( void )
    for (;;)
    {
        /* Timing */
-       t = glfwGetTime();
+       t = glfwGetTime() / 1e9;
        dt = t - t_old;
        t_old = t;
 

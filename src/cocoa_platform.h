@@ -86,8 +86,9 @@ typedef struct _GLFWwindowNS
 typedef struct _GLFWlibraryNS
 {
     struct {
-        double base;
-        double resolution;
+        GLFWuint64 base;
+        GLFWuint64 numer;
+        GLFWuint64 denom;
     } timer;
 
     CGDisplayModeRef desktopMode;

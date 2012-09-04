@@ -38,15 +38,17 @@
 // Return raw time
 //========================================================================
 
-static uint64_t getRawTime(void)
+static GLFWuint64 getRawTime(void)
 {
+    const GLFWuint64 scale = 1000000000UL;
+
 #if defined(CLOCK_MONOTONIC)
     if (_glfwLibrary.X11.timer.monotonic)
     {
         struct timespec ts;
 
         clock_gettime(CLOCK_MONOTONIC, &ts);
-        return (uint64_t) ts.tv_sec * (uint64_t) 1000000000 + (uint64_t) ts.tv_nsec;
+        return ts.tv_sec * scale + ts.tv_nsec;
     }
     else
 #endif
@@ -54,10 +56,14 @@ static uint64_t getRawTime(void)
         struct timeval tv;
 
         gettimeofday(&tv, NULL);
-        return (uint64_t) tv.tv_sec * (uint64_t) 1000000 + (uint64_t) tv.tv_usec;
+        return tv.tv_sec * scale + tv.tv_usec * 1000UL;
     }
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW internal API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 //========================================================================
 // Initialise timer
@@ -69,15 +75,8 @@ void _glfwInitTimer(void)
     struct timespec ts;
 
     if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0)
-    {
         _glfwLibrary.X11.timer.monotonic = GL_TRUE;
-        _glfwLibrary.X11.timer.resolution = 1e-9;
-    }
-    else
 #endif
-    {
-        _glfwLibrary.X11.timer.resolution = 1e-6;
-    }
 
     _glfwLibrary.X11.timer.base = getRawTime();
 }
@@ -91,10 +90,9 @@ void _glfwInitTimer(void)
 // Return timer value in seconds
 //========================================================================
 
-double _glfwPlatformGetTime(void)
+GLFWuint64 _glfwPlatformGetTime(void)
 {
-    return (double) (getRawTime() - _glfwLibrary.X11.timer.base) *
-        _glfwLibrary.X11.timer.resolution;
+    return getRawTime() - _glfwLibrary.X11.timer.base;
 }
 
 
@@ -102,9 +100,8 @@ double _glfwPlatformGetTime(void)
 // Set timer value in seconds
 //========================================================================
 
-void _glfwPlatformSetTime(double time)
+void _glfwPlatformSetTime(GLFWuint64 time)
 {
-    _glfwLibrary.X11.timer.base = getRawTime() -
-        (uint64_t) (time / _glfwLibrary.X11.timer.resolution);
+    _glfwLibrary.X11.timer.base = getRawTime() - time;
 }
 

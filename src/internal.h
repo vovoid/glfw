@@ -277,8 +277,8 @@ int _glfwPlatformGetJoystickAxes(int joy, float* axes, int numaxes);
 int _glfwPlatformGetJoystickButtons(int joy, unsigned char* buttons, int numbuttons);
 
 // Time input
-double _glfwPlatformGetTime(void);
-void _glfwPlatformSetTime(double time);
+GLFWuint64 _glfwPlatformGetTime(void);
+void _glfwPlatformSetTime(GLFWuint64 time);
 
 // Window management
 int  _glfwPlatformCreateWindow(_GLFWwindow* window, const _GLFWwndconfig* wndconfig, const _GLFWfbconfig* fbconfig);

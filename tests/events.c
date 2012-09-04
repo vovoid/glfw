@@ -224,7 +224,7 @@ static void window_size_callback(GLFWwindow window, int width, int height)
 {
     printf("%08x at %0.3f: Window size: %i %i\n",
            counter++,
-           glfwGetTime(),
+           glfwGetTime() / 1e9,
            width,
            height);
 
@@ -233,14 +233,14 @@ static void window_size_callback(GLFWwindow window, int width, int height)
 
 static int window_close_callback(GLFWwindow window)
 {
-    printf("%08x at %0.3f: Window close\n", counter++, glfwGetTime());
+    printf("%08x at %0.3f: Window close\n", counter++, glfwGetTime() / 1e9);
 
     return closeable;
 }
 
 static void window_refresh_callback(GLFWwindow window)
 {
-    printf("%08x at %0.3f: Window refresh\n", counter++, glfwGetTime());
+    printf("%08x at %0.3f: Window refresh\n", counter++, glfwGetTime() / 1e9);
 
     if (glfwGetCurrentContext())
     {
@@ -253,7 +253,7 @@ static void window_focus_callback(GLFWwindow window, int activated)
 {
     printf("%08x at %0.3f: Window %s\n",
            counter++,
-           glfwGetTime(),
+           glfwGetTime() / 1e9,
            activated ? "activated" : "deactivated");
 }
 
@@ -261,7 +261,7 @@ static void window_iconify_callback(GLFWwindow window, int iconified)
 {
     printf("%08x at %0.3f: Window was %s\n",
            counter++,
-           glfwGetTime(),
+           glfwGetTime() / 1e9,
            iconified ? "iconified" : "restored");
 }
 
@@ -269,7 +269,7 @@ static void mouse_button_callback(GLFWwindow window, int button, int action)
 {
     const char* name = get_button_name(button);
 
-    printf("%08x at %0.3f: Mouse button %i", counter++, glfwGetTime(), button);
+    printf("%08x at %0.3f: Mouse button %i", counter++, glfwGetTime() / 1e9, button);
 
     if (name)
         printf(" (%s) was %s\n", name, get_action_name(action));
@@ -279,27 +279,27 @@ static void mouse_button_callback(GLFWwindow window, int button, int action)
 
 static void cursor_position_callback(GLFWwindow window, int x, int y)
 {
-    printf("%08x at %0.3f: Cursor position: %i %i\n", counter++, glfwGetTime(), x, y);
+    printf("%08x at %0.3f: Cursor position: %i %i\n", counter++, glfwGetTime() / 1e9, x, y);
 }
 
 static void cursor_enter_callback(GLFWwindow window, int entered)
 {
     printf("%08x at %0.3f: Cursor %s window\n",
            counter++,
-           glfwGetTime(),
+           glfwGetTime() / 1e9,
            entered ? "entered" : "left");
 }
 
 static void scroll_callback(GLFWwindow window, double x, double y)
 {
-    printf("%08x at %0.3f: Scroll: %0.3f %0.3f\n", counter++, glfwGetTime(), x, y);
+    printf("%08x at %0.3f: Scroll: %0.3f %0.3f\n", counter++, glfwGetTime() / 1e9, x, y);
 }
 
 static void key_callback(GLFWwindow window, int key, int action)
 {
     const char* name = get_key_name(key);
 
-    printf("%08x at %0.3f: Key 0x%04x", counter++, glfwGetTime(), key);
+    printf("%08x at %0.3f: Key 0x%04x", counter++, glfwGetTime() / 1e9, key);
 
     if (name)
         printf(" (%s) was %s\n", name, get_action_name(action));
@@ -343,7 +343,7 @@ static void char_callback(GLFWwindow window, int character)
 {
     printf("%08x at %0.3f: Character 0x%04x (%s) input\n",
            counter++,
-           glfwGetTime(),
+           glfwGetTime() / 1e9,
            character,
            get_character_string(character));
 }

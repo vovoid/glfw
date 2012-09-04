@@ -31,6 +31,23 @@
 #include "internal.h"
 
 
+//========================================================================
+// Return raw time
+//========================================================================
+
+static GLFWuint64 getRawTime(void)
+{
+    GLFWuint64 time;
+
+    if (_glfwLibrary.Win32.timer.hasQPC)
+        QueryPerformanceCounter((LARGE_INTEGER*) &time);
+    else
+        time = _glfw_timeGetTime();
+
+    return time;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
@@ -41,20 +58,15 @@
 
 void _glfwInitTimer(void)
 {
-    __int64 freq;
-
-    if (QueryPerformanceFrequency((LARGE_INTEGER*) &freq))
-    {
-        _glfwLibrary.Win32.timer.hasPC = GL_TRUE;
-        _glfwLibrary.Win32.timer.resolution = 1.0 / (double) freq;
-        QueryPerformanceCounter((LARGE_INTEGER*) &_glfwLibrary.Win32.timer.t0_64);
-    }
+    if (QueryPerformanceFrequency((LARGE_INTEGER*) &_glfwLibrary.Win32.timer.freq))
+        _glfwLibrary.Win32.timer.hasQPC = GL_TRUE;
     else
     {
-        _glfwLibrary.Win32.timer.hasPC = GL_FALSE;
-        _glfwLibrary.Win32.timer.resolution = 0.001; // winmm resolution is 1 ms
-        _glfwLibrary.Win32.timer.t0_32 = _glfw_timeGetTime();
+        _glfwLibrary.Win32.timer.hasQPC = GL_FALSE;
+        _glfwLibrary.Win32.timer.freq = 1000; // timeGetTime is always in ms
     }
+
+    _glfwLibrary.Win32.timer.base = getRawTime();
 }
 
 
@@ -66,20 +78,18 @@ void _glfwInitTimer(void)
 // Return timer value in seconds
 //========================================================================
 
-double _glfwPlatformGetTime(void)
+GLFWuint64 _glfwPlatformGetTime(void)
 {
-    double t;
-    __int64 t_64;
+    const GLFWuint64 billion = 1000000000UL;
 
-    if (_glfwLibrary.Win32.timer.hasPC)
-    {
-        QueryPerformanceCounter((LARGE_INTEGER*) &t_64);
-        t =  (double)(t_64 - _glfwLibrary.Win32.timer.t0_64);
-    }
-    else
-        t = (double)(_glfw_timeGetTime() - _glfwLibrary.Win32.timer.t0_32);
+    const GLFWuint64 time = getRawTime() - _glfwLibrary.Win32.timer.base;
+    const GLFWuint64 freq = _glfwLibrary.Win32.timer.freq;
 
-    return t * _glfwLibrary.Win32.timer.resolution;
+    // If we use the naive solution and multiply time by scale before dividing
+    // by freq, we will quickly run out of room even in a 64-bit uint, so we
+    // split it and thus won't run out of room unless freq > (2^64 / 1e9),
+    // which comes out to over 18GHz.  This should work for now (TM).
+    return (time / freq) * billion + ((time % freq) * billion) / freq;
 }
 
 
@@ -87,16 +97,7 @@ double _glfwPlatformGetTime(void)
 // Set timer value in seconds
 //========================================================================
 
-void _glfwPlatformSetTime(double t)
+void _glfwPlatformSetTime(GLFWuint64 t)
 {
-    __int64 t_64;
-
-    if (_glfwLibrary.Win32.timer.hasPC)
-    {
-        QueryPerformanceCounter((LARGE_INTEGER*) &t_64);
-        _glfwLibrary.Win32.timer.t0_64 = t_64 - (__int64) (t / _glfwLibrary.Win32.timer.resolution);
-    }
-    else
-        _glfwLibrary.Win32.timer.t0_32 = _glfw_timeGetTime() - (int)(t * 1000.0);
 }
 

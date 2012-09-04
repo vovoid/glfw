@@ -218,8 +218,7 @@ typedef struct _GLFWlibraryX11
     // Timer data
     struct {
         GLboolean   monotonic;
-        double      resolution;
-        uint64_t    base;
+        GLFWuint64  base;
     } timer;
 
     // Selection data

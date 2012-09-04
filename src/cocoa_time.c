@@ -36,7 +36,7 @@
 // Return raw time
 //========================================================================
 
-static uint64_t getRawTime(void)
+static GLFWuint64 getRawTime(void)
 {
     return mach_absolute_time();
 }
@@ -55,7 +55,8 @@ void _glfwInitTimer(void)
     mach_timebase_info_data_t info;
     mach_timebase_info(&info);
 
-    _glfwLibrary.NS.timer.resolution = (double) info.numer / (info.denom * 1.0e9);
+    _glfwLibrary.NS.timer.numer = info.numer;
+    _glfwLibrary.NS.timer.denom = info.denom;
     _glfwLibrary.NS.timer.base = getRawTime();
 }
 
@@ -68,10 +69,11 @@ void _glfwInitTimer(void)
 // Return timer value in seconds
 //========================================================================
 
-double _glfwPlatformGetTime(void)
+GLFWuint64 _glfwPlatformGetTime(void)
 {
-    return (double) (getRawTime() - _glfwLibrary.NS.timer.base) *
-        _glfwLibrary.NS.timer.resolution;
+    const GLFWuint64 time = getRawTime() - _glfwLibrary.NS.timer.base;
+
+    return (time * _glfwLibrary.NS.timer.numer) / _glfwLibrary.NS.timer.denom;
 }
 
 
@@ -82,6 +84,6 @@ double _glfwPlatformGetTime(void)
 void _glfwPlatformSetTime(double time)
 {
     _glfwLibrary.NS.timer.base = getRawTime() -
-        (uint64_t) (time / _glfwLibrary.NS.timer.resolution);
+        (time * _glfwLibrary.NS.timer.denom) / _glfwLibrary.NS.timer.numer;
 }
 

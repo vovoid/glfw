@@ -39,7 +39,7 @@
 // Return timer value in seconds
 //========================================================================
 
-GLFWAPI double glfwGetTime(void)
+GLFWAPI GLFWuint64 glfwGetTime(void)
 {
     if (!_glfwInitialized)
     {
@@ -55,7 +55,7 @@ GLFWAPI double glfwGetTime(void)
 // Set timer value in seconds
 //========================================================================
 
-GLFWAPI void glfwSetTime(double time)
+GLFWAPI void glfwSetTime(GLFWuint64 time)
 {
     if (!_glfwInitialized)
     {

@@ -136,6 +136,13 @@ extern "C" {
 
 #endif
 
+#if defined(_MSC_VER)
+  typedef unsigned __int64 GLFWuint64;
+#else
+  #include <stdint.h>
+  typedef uint64_t GLFWuint64;
+#endif
+
 /* -------------------- END SYSTEM/COMPILER SPECIFIC --------------------- */
 
 /* Include the chosen OpenGL header and, optionally, the GLU header.
@@ -572,8 +579,8 @@ GLFWAPI void glfwSetClipboardString(GLFWwindow window, const char* string);
 GLFWAPI const char* glfwGetClipboardString(GLFWwindow window);
 
 /* Time */
-GLFWAPI double glfwGetTime(void);
-GLFWAPI void   glfwSetTime(double time);
+GLFWAPI GLFWuint64 glfwGetTime(void);
+GLFWAPI void glfwSetTime(GLFWuint64 time);
 
 /* OpenGL support */
 GLFWAPI void glfwMakeContextCurrent(GLFWwindow window);

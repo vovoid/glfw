@@ -38,7 +38,7 @@ static GLboolean running = GL_TRUE;
 static void window_focus_callback(GLFWwindow window, int activated)
 {
     printf("%0.3f: Window %s\n",
-           glfwGetTime(),
+           glfwGetTime() / 1e9,
            activated ? "activated" : "deactivated");
 }
 

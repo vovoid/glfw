@@ -191,10 +191,9 @@ typedef struct _GLFWlibraryWin32
 
     // Timer data
     struct {
-        GLboolean             hasPC;
-        double                resolution;
-        unsigned int          t0_32;
-        __int64               t0_64;
+        GLboolean             hasQPC;
+        GLFWuint64            freq;
+        GLFWuint64            base;
     } timer;
 
 #ifndef _GLFW_NO_DLOAD_WINMM
