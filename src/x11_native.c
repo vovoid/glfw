@@ -1,10 +1,10 @@
 //========================================================================
 // GLFW - An OpenGL library
-// Platform:    Cocoa
-// API Version: 3.0
+// Platform:    Win32/WGL
+// API version: 3.0
 // WWW:         http://www.glfw.org/
 //------------------------------------------------------------------------
-// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -29,34 +29,56 @@
 
 #include "internal.h"
 
+#define GLFW_EXPOSE_NATIVE_X11_GLX
+#include "../include/GL/glfw3native.h"
+
 
 //////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
+//////                        GLFW native API                       //////
 //////////////////////////////////////////////////////////////////////////
 
 //========================================================================
-// Enable and disable system keys
+// Returns the X11 display
 //========================================================================
 
-void _glfwPlatformEnableSystemKeys(_GLFWwindow* window)
+GLFWAPI Display* glfwGetX11Display(void)
 {
-    // This is checked in cocoa_window.m; no action needed here
-}
-
-void _glfwPlatformDisableSystemKeys(_GLFWwindow* window)
-{
-    // This is checked in cocoa_window.m; no action needed here
-
-    // Note that it may not be possible to disable things like Exposé
-    // except in full-screen mode.
+    return _glfwLibrary.X11.display;
 }
 
 
 //========================================================================
-// Set whether touch input is enabled for the specified window
+// Returns the X11 handle of the specified window
 //========================================================================
 
-void _glfwPlatformSetTouchInput(_GLFWwindow* window, int enabled)
+GLFWAPI Window glfwGetX11Window(GLFWwindow handle)
 {
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return 0;
+    }
+
+    return window->X11.handle;
+}
+
+
+//========================================================================
+// Return the GLX context of the specified window
+//========================================================================
+
+GLFWAPI GLXContext glfwGetGLXContext(GLFWwindow handle)
+{
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return NULL;
+    }
+
+    return window->GLX.context;
 }
 

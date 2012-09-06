@@ -119,12 +119,41 @@ static void list_extensions(int major, int minor)
     putchar('\n');
 }
 
+static GLboolean valid_version(void)
+{
+    int major, minor, revision;
+
+    glfwGetVersion(&major, &minor, &revision);
+
+    printf("GLFW header version: %u.%u.%u\n",
+           GLFW_VERSION_MAJOR,
+           GLFW_VERSION_MINOR,
+           GLFW_VERSION_REVISION);
+
+    printf("GLFW library version: %u.%u.%u\n", major, minor, revision);
+
+    if (major != GLFW_VERSION_MAJOR)
+    {
+        printf("*** ERROR: GLFW major version mismatch! ***\n");
+        return GL_FALSE;
+    }
+
+    if (minor != GLFW_VERSION_MINOR || revision != GLFW_VERSION_REVISION)
+        printf("*** WARNING: GLFW version mismatch! ***\n");
+
+    printf("GLFW library version string: \"%s\"\n", glfwGetVersionString());
+    return GL_TRUE;
+}
+
 int main(int argc, char** argv)
 {
     int ch, profile = 0, strategy = 0, major = 1, minor = 0, revision;
     GLboolean debug = GL_FALSE, forward = GL_FALSE, list = GL_FALSE;
     GLint flags, mask;
     GLFWwindow window;
+
+    if (!valid_version())
+        exit(EXIT_FAILURE);
 
     while ((ch = getopt(argc, argv, "dfhlm:n:p:r:")) != -1)
     {
@@ -181,6 +210,8 @@ int main(int argc, char** argv)
     argc -= optind;
     argv += optind;
 
+    // Initialize GLFW and create window
+
     glfwSetErrorCallback(error_callback);
 
     if (!glfwInit())
@@ -191,48 +222,30 @@ int main(int argc, char** argv)
 
     if (major != 1 || minor != 0)
     {
-        glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, major);
-        glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, minor);
+        glfwWindowHint(GLFW_OPENGL_VERSION_MAJOR, major);
+        glfwWindowHint(GLFW_OPENGL_VERSION_MINOR, minor);
     }
 
     if (debug)
-        glfwOpenWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
     if (forward)
-        glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     if (profile != 0)
-        glfwOpenWindowHint(GLFW_OPENGL_PROFILE, profile);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
 
     if (strategy)
-        glfwOpenWindowHint(GLFW_OPENGL_ROBUSTNESS, strategy);
+        glfwWindowHint(GLFW_OPENGL_ROBUSTNESS, strategy);
 
     // We assume here that we stand a better chance of success by leaving all
     // possible details of pixel format selection to GLFW
 
-    window = glfwOpenWindow(0, 0, GLFW_WINDOWED, "Version", NULL);
+    window = glfwCreateWindow(0, 0, GLFW_WINDOWED, "Version", NULL);
     if (!window)
         exit(EXIT_FAILURE);
 
-    // Report GLFW version
-
-    glfwGetVersion(&major, &minor, &revision);
-
-    printf("GLFW header version: %u.%u.%u\n",
-           GLFW_VERSION_MAJOR,
-           GLFW_VERSION_MINOR,
-           GLFW_VERSION_REVISION);
-
-    printf("GLFW library version: %u.%u.%u\n", major, minor, revision);
-
-    if (major != GLFW_VERSION_MAJOR ||
-        minor != GLFW_VERSION_MINOR ||
-        revision != GLFW_VERSION_REVISION)
-    {
-        printf("*** WARNING: GLFW version mismatch! ***\n");
-    }
-
-    printf("GLFW library version string: \"%s\"\n", glfwGetVersionString());
+    glfwMakeContextCurrent(window);
 
     // Report OpenGL version
 
@@ -249,23 +262,29 @@ int main(int argc, char** argv)
     if (major >= 3)
     {
         glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-        printf("OpenGL context flags:");
+        printf("OpenGL context flags (0x%08x):", flags);
 
         if (flags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT)
-            puts(" forward-compatible");
-        else
-            puts(" none");
+            printf(" forward-compatible");
+        if (flags & 0)
+            printf(" debug");
+        putchar('\n');
 
-        printf("OpenGL forward-compatible flag parsed by GLFW: %s\n",
-               glfwGetWindowParam(window, GLFW_OPENGL_FORWARD_COMPAT) ? "true" : "false");
+        printf("OpenGL context flags parsed by GLFW:");
+
+        if (glfwGetWindowParam(window, GLFW_OPENGL_FORWARD_COMPAT))
+            printf(" forward-compatible");
+        if (glfwGetWindowParam(window, GLFW_OPENGL_DEBUG_CONTEXT))
+            printf(" debug");
+        putchar('\n');
     }
 
     if (major > 3 || (major == 3 && minor >= 2))
     {
         glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &mask);
-        printf("OpenGL profile mask: %s (0x%08x)\n", get_profile_name(mask), mask);
+        printf("OpenGL profile mask (0x%08x): %s\n", mask, get_profile_name(mask));
 
-        printf("OpenGL profile parsed by GLFW: %s\n",
+        printf("OpenGL profile mask parsed by GLFW: %s\n",
                get_glfw_profile_name(glfwGetWindowParam(window, GLFW_OPENGL_PROFILE)));
     }
 
