@@ -285,6 +285,7 @@ void _glfwPlatformDestroyWindow(_GLFWwindow* window);
 void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char* title);
 void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height);
 void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y);
+void _glfwPlatformSetWindowIcons(_GLFWwindow* window, GLFWimage* icons, int numicons);
 void _glfwPlatformIconifyWindow(_GLFWwindow* window);
 void _glfwPlatformRestoreWindow(_GLFWwindow* window);
 

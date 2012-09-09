@@ -34,6 +34,7 @@ add_executable(joysticks joysticks.c)
 add_executable(modes modes.c ${GETOPT})
 add_executable(peter peter.c)
 add_executable(reopen reopen.c)
+add_executable(icons icons.c)
 
 add_executable(accuracy WIN32 MACOSX_BUNDLE accuracy.c)
 set_target_properties(accuracy PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Accuracy")
@@ -59,7 +60,7 @@ endif()
 
 set(WINDOWS_BINARIES accuracy sharing tearing threads title windows)
 set(CONSOLE_BINARIES clipboard defaults events fsaa fsfocus gamma glfwinfo
-                     iconify joysticks modes peter reopen)
+                     iconify icons joysticks modes peter reopen)
 
 if (MSVC)
     # Tell MSVC to use main instead of WinMain for Windows subsystem executables

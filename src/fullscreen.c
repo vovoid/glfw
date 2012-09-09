@@ -32,8 +32,10 @@
 #include "internal.h"
 
 #include <stdlib.h>
-#if _WIN32
- #include <malloc.h>
+#ifdef __APPLE__
+#include <sys/malloc.h>
+#else
+#include <malloc.h>
 #endif
 
 

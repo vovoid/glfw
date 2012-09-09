@@ -1009,6 +1009,16 @@ void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y)
 
 
 //========================================================================
+// Set the window icon(s)
+//========================================================================
+
+void _glfwPlatformSetWindowIcons(_GLFWwindow* window, GLFWimage *icons, int numicons)
+{
+    // TODO: implement this
+}
+
+
+//========================================================================
 // Window iconification
 //========================================================================
 

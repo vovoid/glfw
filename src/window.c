@@ -33,8 +33,10 @@
 
 #include <string.h>
 #include <stdlib.h>
-#if _WIN32
- #include <malloc.h>
+#ifdef __APPLE__
+#include <sys/malloc.h>
+#else
+#include <malloc.h>
 #endif
 
 
@@ -603,6 +605,28 @@ GLFWAPI void glfwSetWindowPos(GLFWwindow handle, int xpos, int ypos)
     }
 
     _glfwPlatformSetWindowPos(window, xpos, ypos);
+}
+
+
+//========================================================================
+// Set the window icon(s)
+//========================================================================
+
+GLFWAPI void glfwSetWindowIcons(GLFWwindow handle, GLFWimage* icons, int numicons)
+{
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+    
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+    
+    if (numicons <= 0) {
+        return;
+    }
+    
+    _glfwPlatformSetWindowIcons(window, icons, numicons);
 }
 
 
