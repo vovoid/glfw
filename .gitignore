@@ -41,3 +41,4 @@ tests/title
 tests/windows
 tests/*.app
 tests/*.exe
+build/*

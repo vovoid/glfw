@@ -498,6 +498,15 @@ typedef struct
     unsigned short blue[GLFW_GAMMA_RAMP_SIZE];
 } GLFWgammaramp;
 
+/* The image data struct used by glfwWindowSetIcons.
+data must point to width * height * 4 bytes of 8bits RGBA data, bottom to top, left to right */
+typedef struct
+{
+    unsigned char *data;
+    int width;
+    int height;
+} GLFWimage;
+
 
 /*************************************************************************
  * Prototypes
@@ -527,11 +536,12 @@ GLFWAPI void glfwSetGammaRamp(const GLFWgammaramp* ramp);
 GLFWAPI void glfwWindowHint(int target, int hint);
 GLFWAPI GLFWwindow glfwCreateWindow(int width, int height, int mode, const char* title, GLFWwindow share);
 GLFWAPI void glfwDestroyWindow(GLFWwindow window);
-GLFWAPI void glfwSetWindowTitle(GLFWwindow window, const char* title);
-GLFWAPI void glfwGetWindowSize(GLFWwindow window, int* width, int* height);
-GLFWAPI void glfwSetWindowSize(GLFWwindow window, int width, int height);
-GLFWAPI void glfwGetWindowPos(GLFWwindow window, int* xpos, int* ypos);
-GLFWAPI void glfwSetWindowPos(GLFWwindow window, int xpos, int ypos);
+GLFWAPI void glfwSetWindowTitle(GLFWwindow, const char* title);
+GLFWAPI void glfwGetWindowSize(GLFWwindow, int* width, int* height);
+GLFWAPI void glfwSetWindowSize(GLFWwindow, int width, int height);
+GLFWAPI void glfwGetWindowPos(GLFWwindow, int* xpos, int* ypos);
+GLFWAPI void glfwSetWindowPos(GLFWwindow, int xpos, int ypos);
+GLFWAPI void glfwSetWindowIcons(GLFWwindow window, GLFWimage* icons, int numicons);
 GLFWAPI void glfwIconifyWindow(GLFWwindow window);
 GLFWAPI void glfwRestoreWindow(GLFWwindow window);
 GLFWAPI int  glfwGetWindowParam(GLFWwindow window, int param);

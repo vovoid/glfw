@@ -609,6 +609,28 @@ GLFWAPI void glfwSetWindowPos(GLFWwindow handle, int xpos, int ypos)
 
 
 //========================================================================
+// Set the window icon(s)
+//========================================================================
+
+GLFWAPI void glfwSetWindowIcons(GLFWwindow handle, GLFWimage* icons, int numicons)
+{
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+    
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+    
+    if (numicons <= 0) {
+        return;
+    }
+    
+    _glfwPlatformSetWindowIcons(window, icons, numicons);
+}
+
+
+//========================================================================
 // Window iconification
 //========================================================================
 
