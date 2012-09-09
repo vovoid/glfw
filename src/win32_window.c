@@ -1157,6 +1157,17 @@ void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height)
 
 
 //========================================================================
+// Set the window size limits
+//========================================================================
+
+void _glfwPlatformSetWindowSizeLimits(_GLFWwindow* window,
+                                      int minwidth, int minheight,
+                                      int maxwidth, int maxheight)
+{
+}
+
+
+//========================================================================
 // Set the window position
 //========================================================================
 

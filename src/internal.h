@@ -171,6 +171,8 @@ struct _GLFWwindow
     int       mode;            // GLFW_WINDOW or GLFW_FULLSCREEN
     GLboolean resizable;       // GL_TRUE if user may resize this window
     int       refreshRate;     // monitor refresh rate
+    int       minWidth, minHeight;
+    int       maxWidth, maxHeight;
     void*     userPointer;
 
     // Window input state
@@ -284,6 +286,7 @@ int  _glfwPlatformCreateWindow(_GLFWwindow* window, const _GLFWwndconfig* wndcon
 void _glfwPlatformDestroyWindow(_GLFWwindow* window);
 void _glfwPlatformSetWindowTitle(_GLFWwindow* window, const char* title);
 void _glfwPlatformSetWindowSize(_GLFWwindow* window, int width, int height);
+void _glfwPlatformSetWindowSizeLimits(_GLFWwindow* window, int minwidth, int minheight, int maxwidth, int maxheight);
 void _glfwPlatformSetWindowPos(_GLFWwindow* window, int x, int y);
 void _glfwPlatformIconifyWindow(_GLFWwindow* window);
 void _glfwPlatformRestoreWindow(_GLFWwindow* window);

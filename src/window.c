@@ -561,6 +561,55 @@ GLFWAPI void glfwSetWindowSize(GLFWwindow handle, int width, int height)
 
 
 //========================================================================
+// Get the window size limits
+//========================================================================
+
+GLFWAPI void glfwGetWindowSizeLimits(GLFWwindow handle,
+                                     int* minwidth, int* minheight,
+                                     int* maxwidth, int* maxheight)
+{
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+
+    if (minwidth)
+        *minwidth = window->minWidth;
+    if (minheight)
+        *minheight = window->minHeight;
+    if (maxwidth)
+        *maxwidth = window->maxWidth;
+    if (maxheight)
+        *maxheight = window->maxHeight;
+}
+
+
+//========================================================================
+// Set the window size limits
+//========================================================================
+
+GLFWAPI void glfwSetWindowSizeLimits(GLFWwindow handle,
+                                     int minwidth, int minheight,
+                                     int maxwidth, int maxheight)
+{
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+
+    if (!_glfwInitialized)
+    {
+        _glfwSetError(GLFW_NOT_INITIALIZED, NULL);
+        return;
+    }
+
+    _glfwPlatformSetWindowSizeLimits(window,
+                                     minwidth, minheight,
+                                     maxwidth, maxheight);
+}
+
+
+//========================================================================
 // Get the window position
 //========================================================================
 
