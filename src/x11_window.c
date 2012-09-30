@@ -296,6 +296,45 @@ static void showCursor(_GLFWwindow* window)
 
 
 //========================================================================
+// Handle cursor position
+//========================================================================
+
+static void processCursorPos(_GLFWwindow* window, int x, int y)
+{
+    int motionX, motionY;
+
+    if (x == window->X11.cursorPosX && y == window->X11.cursorPosY)
+        return;
+
+    // The cursor was moved by something other than GLFW
+
+    if (window->cursorMode == GLFW_CURSOR_CAPTURED)
+    {
+        if (_glfwLibrary.activeWindow != window)
+        {
+            // Captured cursor mode cannot yield sensical input without cursor
+            // re-centering, which isn't performed unless the window is active
+            return;
+        }
+
+        motionX = x - window->X11.cursorPosX;
+        motionY = y - window->X11.cursorPosY;
+    }
+    else
+    {
+        motionX = x;
+        motionY = y;
+    }
+
+    window->X11.cursorPosX = x;
+    window->X11.cursorPosY = y;
+    window->X11.cursorCentered = GL_FALSE;
+
+    _glfwInputCursorMotion(window, motionX, motionY);
+}
+
+
+//========================================================================
 // Enter fullscreen mode
 //========================================================================
 
@@ -523,6 +562,8 @@ static void processEvent(XEvent *event)
             if (window == NULL)
                 return;
 
+            processCursorPos(window, event->xbutton.x, event->xbutton.y);
+
             if (event->xbutton.button == Button1)
                 _glfwInputMouseClick(window, GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
             else if (event->xbutton.button == Button2)
@@ -551,6 +592,8 @@ static void processEvent(XEvent *event)
             window = findWindow(event->xbutton.window);
             if (window == NULL)
                 return;
+
+            processCursorPos(window, event->xbutton.x, event->xbutton.y);
 
             if (event->xbutton.button == Button1)
             {
@@ -608,34 +651,7 @@ static void processEvent(XEvent *event)
             if (window == NULL)
                 return;
 
-            if (event->xmotion.x != window->X11.cursorPosX ||
-                event->xmotion.y != window->X11.cursorPosY)
-            {
-                // The cursor was moved by something other than GLFW
-
-                int x, y;
-
-                if (window->cursorMode == GLFW_CURSOR_CAPTURED)
-                {
-                    if (_glfwLibrary.activeWindow != window)
-                        break;
-
-                    x = event->xmotion.x - window->X11.cursorPosX;
-                    y = event->xmotion.y - window->X11.cursorPosY;
-                }
-                else
-                {
-                    x = event->xmotion.x;
-                    y = event->xmotion.y;
-                }
-
-                window->X11.cursorPosX = event->xmotion.x;
-                window->X11.cursorPosY = event->xmotion.y;
-                window->X11.cursorCentered = GL_FALSE;
-
-                _glfwInputCursorMotion(window, x, y);
-            }
-
+            processCursorPos(window, event->xmotion.x, event->xmotion.y);
             break;
         }
 

@@ -301,6 +301,27 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 
 
 //========================================================================
+// Handle cursor position
+//========================================================================
+
+static void processCursorPos(_GLFWwindow* window, NSEvent* event)
+{
+    if (window->cursorMode == GLFW_CURSOR_CAPTURED)
+        _glfwInputCursorMotion(window, [event deltaX], [event deltaY]);
+    else
+    {
+        const NSPoint p = [event locationInWindow];
+
+        // Cocoa coordinate system has origin at lower left
+        const int motionX = lround(floor(p.x));
+        const int motionY = window->height - lround(ceil(p.y));
+
+        _glfwInputCursorMotion(window, x, y);
+    }
+}
+
+
+//========================================================================
 // Content view class for the GLFW window
 //========================================================================
 
@@ -368,18 +389,6 @@ static int convertMacKeyCode(unsigned int macKeyCode)
 
 - (void)mouseMoved:(NSEvent *)event
 {
-    if (window->cursorMode == GLFW_CURSOR_CAPTURED)
-        _glfwInputCursorMotion(window, [event deltaX], [event deltaY]);
-    else
-    {
-        const NSPoint p = [event locationInWindow];
-
-        // Cocoa coordinate system has origin at lower left
-        const int x = lround(floor(p.x));
-        const int y = window->height - lround(ceil(p.y));
-
-        _glfwInputCursorMotion(window, x, y);
-    }
 }
 
 - (void)rightMouseDown:(NSEvent *)event

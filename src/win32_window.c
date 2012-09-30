@@ -80,6 +80,43 @@ static void showCursor(_GLFWwindow* window)
 
 
 //========================================================================
+// Handle cursor position
+//========================================================================
+
+static void processCursorPos(_GLFWwindow* window, int x, int y)
+{
+    int motionX, motionY;
+
+    if (x == window->Win32.oldCursorX && y == window->Win32.oldCursorY)
+        return;
+
+    if (window->cursorMode == GLFW_CURSOR_CAPTURED)
+    {
+        if (_glfwLibrary.activeWindow != window)
+        {
+            // Captured cursor mode cannot yield sensical input without cursor
+            // re-centering, which isn't performed unless the window is active
+            return;
+        }
+
+        motionX = x - window->Win32.oldCursorX;
+        motionY = y - window->Win32.oldCursorY;
+    }
+    else
+    {
+        motionX = x;
+        motionY = y;
+    }
+
+    window->Win32.oldCursorX = x;
+    window->Win32.oldCursorY = y;
+    window->Win32.cursorCentered = GL_FALSE;
+
+    _glfwInputCursorMotion(window, motionX, motionY);
+}
+
+
+//========================================================================
 // Translates a Windows key to the corresponding GLFW key
 //========================================================================
 
@@ -454,6 +491,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_LBUTTONDOWN:
         {
+            processCursorPos(window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
             SetCapture(hWnd);
             _glfwInputMouseClick(window, GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);
             return 0;
@@ -461,6 +500,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_RBUTTONDOWN:
         {
+            processCursorPos(window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
             SetCapture(hWnd);
             _glfwInputMouseClick(window, GLFW_MOUSE_BUTTON_RIGHT, GLFW_PRESS);
             return 0;
@@ -468,6 +509,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_MBUTTONDOWN:
         {
+            processCursorPos(window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
             SetCapture(hWnd);
             _glfwInputMouseClick(window, GLFW_MOUSE_BUTTON_MIDDLE, GLFW_PRESS);
             return 0;
@@ -475,6 +518,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_XBUTTONDOWN:
         {
+            processCursorPos(window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
             if (HIWORD(wParam) == XBUTTON1)
             {
                 SetCapture(hWnd);
@@ -491,6 +536,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_LBUTTONUP:
         {
+            processCursorPos(window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
             ReleaseCapture();
             _glfwInputMouseClick(window, GLFW_MOUSE_BUTTON_LEFT, GLFW_RELEASE);
             return 0;
@@ -498,6 +545,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_RBUTTONUP:
         {
+            processCursorPos(window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
             ReleaseCapture();
             _glfwInputMouseClick(window, GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE);
             return 0;
@@ -505,6 +554,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_MBUTTONUP:
         {
+            processCursorPos(window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
             ReleaseCapture();
             _glfwInputMouseClick(window, GLFW_MOUSE_BUTTON_MIDDLE, GLFW_RELEASE);
             return 0;
@@ -512,6 +563,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_XBUTTONUP:
         {
+            processCursorPos(window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
             if (HIWORD(wParam) == XBUTTON1)
             {
                 ReleaseCapture();
@@ -528,38 +581,6 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_MOUSEMOVE:
         {
-            int newCursorX, newCursorY;
-
-            // Get signed (!) cursor position
-            newCursorX = GET_X_LPARAM(lParam);
-            newCursorY = GET_Y_LPARAM(lParam);
-
-            if (newCursorX != window->Win32.oldCursorX ||
-                newCursorY != window->Win32.oldCursorY)
-            {
-                int x, y;
-
-                if (window->cursorMode == GLFW_CURSOR_CAPTURED)
-                {
-                    if (_glfwLibrary.activeWindow != window)
-                        return 0;
-
-                    x = newCursorX - window->Win32.oldCursorX;
-                    y = newCursorY - window->Win32.oldCursorY;
-                }
-                else
-                {
-                    x = newCursorX;
-                    y = newCursorY;
-                }
-
-                window->Win32.oldCursorX = newCursorX;
-                window->Win32.oldCursorY = newCursorY;
-                window->Win32.cursorCentered = GL_FALSE;
-
-                _glfwInputCursorMotion(window, x, y);
-            }
-
             if (!window->Win32.cursorInside)
             {
                 TRACKMOUSEEVENT tme;
@@ -572,6 +593,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 window->Win32.cursorInside = GL_TRUE;
                 _glfwInputCursorEnter(window, GL_TRUE);
             }
+
+            processCursorPos(window, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
             return 0;
         }
