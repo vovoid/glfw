@@ -14,9 +14,12 @@ include_directories(${GLFW_SOURCE_DIR}/include
 
 set(GETOPT ${GLFW_SOURCE_DIR}/support/getopt.h
            ${GLFW_SOURCE_DIR}/support/getopt.c)
+set(TINYCTHREAD ${GLFW_SOURCE_DIR}/support/tinycthread.h
+                ${GLFW_SOURCE_DIR}/support/tinycthread.c)
 
 if (APPLE)
     # Set fancy names for bundles
+    add_executable("Abstracted Events" MACOSX_BUNDLE absevent.c ${TINYCTHREAD})
     add_executable(Boing MACOSX_BUNDLE boing.c)
     add_executable(Gears MACOSX_BUNDLE gears.c)
     add_executable("Split View" MACOSX_BUNDLE splitview.c)
@@ -30,6 +33,7 @@ if (APPLE)
     set_target_properties(Wave PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Wave")
 else()
     # Set boring names for executables
+    add_executable(absevent WIN32 absevent.cpp ${TINYCTHREAD})
     add_executable(boing WIN32 boing.c)
     add_executable(gears WIN32 gears.c)
     add_executable(heightmap WIN32 heightmap.c ${GETOPT})
